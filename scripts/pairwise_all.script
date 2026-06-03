@@ -1,0 +1,58 @@
+#!/bin/bash
+
+#SBATCH -J pairwise_intersections
+#SBATCH -t 24:00:00
+#SBATCH -n 1
+#SBATCH --mem=20G
+#SBATCH -o ../logs/pairwise_intersections_%A_%a.out
+#SBATCH -e ../logs/pairwise_intersections_%A_%a.err
+#SBATCH --mail-user=abigail_kuntzleman@brown.edu
+#SBATCH --mail-type=FAIL
+#SBATCH --array=1-190  # 171 between + 19 within
+
+
+ml bedops
+#This script runs all pairwise comparisons for within and between populations to get all sharing per haplotype
+# Define the population array
+#uses pairwise_within_hmmix.sh and pairwise_hmmix.sh
+populations=("BEB" "CDX" "CEU" "CHB" "CHS" "CLM" "FIN" "GBR" "GIH" "IBS" "ITU" "JPT" "KHV" "MXL" "PEL" "PJL" "PUR" "STU" "TSI")
+
+# Set up pairwise and within comparisons
+pairwise_combos=()
+within_combos=()
+
+input_dir="/users/akuntzle/data/akuntzle/hmmix_output/all_by_pop"
+output_dir="/users/akuntzle/data/akuntzle/hmmix_output/pairwise_comparisons_all"
+
+# input_dir="/users/akuntzle/data/akuntzle/hmmix_output/Neanderthal_by_pop"
+# output_dir="/users/akuntzle/data/akuntzle/hmmix_output/pairwise_comparisons_neanderthal"
+
+# input_dir="/users/akuntzle/data/akuntzle/hmmix_output/hmmix_output/denisovan_by_pop"
+# output_dir="/users/akuntzle/data/akuntzle/hmmix_output/pairwise_comparisons_denisovan"
+
+# Generate pairwise combinations
+for i in $(seq 0 $((${#populations[@]} - 1))); do
+    for j in $(seq $((i + 1)) $((${#populations[@]} - 1))); do
+        pairwise_combos+=("${populations[$i]} ${populations[$j]}")
+    done
+    within_combos+=("${populations[$i]}")
+done
+
+# Total number of between-population comparisons
+num_between=${#pairwise_combos[@]}  # Should be 171
+
+echo $num_between
+
+# Determine what to run based on array task ID
+if [ "$SLURM_ARRAY_TASK_ID" -le "$num_between" ]; then
+    # Between-population comparison
+    pair="${pairwise_combos[$SLURM_ARRAY_TASK_ID-1]}"
+    echo "Running BETWEEN-population comparison for: $pair"
+    sh pairwise_hmmix.sh $pair $input_dir $rootoutdir
+else
+    # Within-population comparison
+    index_within=$((SLURM_ARRAY_TASK_ID - num_between - 1))
+    pop="${within_combos[$index_within]}"
+    echo "Running WITHIN-population comparison for: $pop"
+    sh pairwise_within_hmmix.sh $pop $input_dir $rootoutdir
+fi
