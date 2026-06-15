@@ -1,0 +1,134 @@
+description: Demographic Modeling of MXL-1KGP. --> Extended to include archaic-introgression from NEA into OoA and DEN into EAS
+time_units: generations
+#generation_time: 29
+demes:
+- name: Ancestral
+  description: Equilibrium/root population
+  epochs:
+  - {end_time: 16671, start_size: 13580.373657849503}
+- name: Archaic
+  description: Last common ancestor of archaic hominins.
+  ancestors: [Ancestral]
+  start_time: 20225
+  epochs:
+  - {end_time: 15090, start_size: 13249}
+- name: NEA
+  description: Neanderthal
+  ancestors: [Archaic]
+  epochs:
+  - {end_time: 1551, end_size: 826}
+- name: DEN
+  description: Denisovan
+  ancestors: [Archaic]
+  epochs:
+  - {end_time: 1551, end_size: 5083}
+- name: AMH
+  description: Anatomically modern humans
+  ancestors: [Ancestral]
+  epochs:
+  - {end_time: 3046, start_size: 27142.07281765073}
+- name: OOA
+  description: Bottleneck out-of-Africa population
+  ancestors: [AMH]
+  epochs:
+  - {end_time: 1764, start_size: 1834.8116479610317}
+- name: YRI
+  description: Yoruba in Ibadan, Nigeria. Representative of African ancestries.
+  ancestors: [AMH]
+  epochs:
+  - {end_time: 0, start_size: 27142.07281765073}
+- name: IBS
+  description: Iberian populations in Spain (IBS). Representative of European ancestries.
+  ancestors: [OOA]
+  epochs:
+  - {end_time: 0, start_size: 2761.3347067250797, end_size: 26462.05884107293}
+- name: IBS_split1
+  description: First split population from Iberian (IBS). Representative of one donor European ancestry.
+  start_time: 26
+  ancestors: [IBS]
+  epochs:
+  - {end_time: 0, start_size: 2560}
+- name: IBS_split2
+  description: Second split population from Iberian (IBS). Representative of second donor European ancestry.
+  start_time: 26
+  ancestors: [IBS]
+  epochs:
+  - {end_time: 0, start_size: 2560}
+- name: IBS_split3
+  description: Third split population from Iberian (IBS). Representative of third donor European ancestry.
+  start_time: 26
+  ancestors: [IBS]
+  epochs:
+  - {end_time: 0, start_size: 2560}
+- name: IBS_split4
+  description: Fourth split population from Iberian (IBS). Representative of fourth donor European ancestry.
+  start_time: 26
+  ancestors: [IBS]
+  epochs:
+  - {end_time: 0, start_size: 2560}
+- name: IBS_split5
+  description: Fifth split population from Iberian (IBS). Representative of fifth donor European ancestry.
+  start_time: 26
+  ancestors: [IBS]
+  epochs:
+  - {end_time: 0, start_size: 2560}
+- name: IBS_split6
+  description: Sixth split population from Iberian (IBS). Representative of sixth donor European ancestry.
+  start_time: 26
+  ancestors: [IBS]
+  epochs:
+  - {end_time: 0, start_size: 2560}
+- name: CHB
+  description: Han Chinese in Beijing, China. Representative of East Asian ancestries.
+  ancestors: [OOA]
+  epochs:
+  - {end_time: 0, start_size: 1954.52946761033, end_size: 15363.53634144032}
+- name: MXB
+  description: Indigenous American in Mexico. Representative of Indigenous American ancestries.
+  start_time: 1123
+  ancestors: [CHB]
+  epochs:
+  - {end_time: 0, start_size: 1312.8044812722449, end_size: 38461.62164227266}
+# Admixed populations
+# MXL
+- name: MXL
+  description: Mexicans in Los Angeles. Representative of the Mexican population.
+  ancestors: [MXB, IBS_split1, IBS_split2, IBS_split3, IBS_split4, IBS_split5, IBS_split6]
+  proportions: [0.7508, 0.04153, 0.04154, 0.04153, 0.04154, 0.04153, 0.04153]
+  start_time: 16
+  epochs:
+  - {end_time: 0, start_size: 20000}
+migrations:
+- demes: [YRI, IBS]
+  rate: 2.501606466512543e-05
+- demes: [YRI, CHB]
+  rate: 3.2948319408915263e-06
+- demes: [IBS, CHB]
+  rate: 6.62400743683469e-05
+- demes: [YRI, OOA]
+  rate: 0.00015859499514691533
+# MXL
+# IBS rate .0573
+- {source: MXB, dest: MXL, rate: 0.0502, end_time: 2}
+- {source: IBS_split1, dest: MXL, rate: 0.00955, end_time: 2}
+- {source: IBS_split2, dest: MXL, rate: 0.00955, end_time: 2}
+- {source: IBS_split3, dest: MXL, rate: 0.00955, end_time: 2}
+- {source: IBS_split4, dest: MXL, rate: 0.00955, end_time: 2}
+- {source: IBS_split5, dest: MXL, rate: 0.00955, end_time: 2}
+- {source: IBS_split6, dest: MXL, rate: 0.00955, end_time: 2}
+pulses:
+  # Archaics
+  - sources: [NEA]
+    dest: OOA
+    proportions: [0.05]
+    time: 2069
+  - sources: [DEN]
+    dest: CHB
+    proportions: [0.05]
+    time: 1552
+
+  # MXL
+  - sources: [YRI, CHB]
+    dest: MXL
+    proportions: [0.11178, 0.007422]
+    time: 13
