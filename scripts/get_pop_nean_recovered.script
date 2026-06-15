@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#SBATCH -J get_pop_nean_recovered
+#SBATCH -t 12:00:00
+#SBATCH -n 1
+#SBATCH --mem=40G
+#SBATCH --array=0-7
+#SBATCH -o ./logs/get_pop_nean_recovered_%a.out
+#SBATCH -e ./logs/get_pop_nean_recovered_%a.err
+#SBATCH --mail-user=abigail_kuntzleman@brown.edu
+#SBATCH --mail-type=FAIL
+
+# Define parameter combinations
+POPS1=(MXL MXL CLM CLM PUR PUR PEL PEL)
+POPS2=(EUR AMR EUR AMR EUR AMR EUR AMR)
+
+# Select based on array index
+POP1=${POPS1[$SLURM_ARRAY_TASK_ID]}
+POP2=${POPS2[$SLURM_ARRAY_TASK_ID]}
+
+echo "Running: $POP1 $POP2"
+
+python get_pop_nean_recovered.py $POP1 $POP2
