@@ -98,6 +98,38 @@ rerunning the pipeline.
 
 ---
 
+## Table 1 — admixture proportion and shared archaic ancestry
+
+Reuses the pairwise sharing output from Figure 1, so run `fig1/00`–`fig1/03`
+first.
+
+```bash
+python table1/00_ancestry_proportions.py          # needs LAI_DIR (see below)
+python table1/01_table1_values.py                 # -> results/tables/
+```
+
+`--unit individual` (the default) averages over people; `--unit haplotype`
+averages over haplotypes. The means are nearly identical, the standard
+deviations are not, so state in the methods which one the table reports.
+
+### Local ancestry inference — not public
+
+`table1/00_ancestry_proportions.py` needs local ancestry inference BED files
+that are not publicly available. Point `LAI_DIR` at them:
+
+```bash
+export LAI_DIR=/path/to/local_ancestry      # expects 1kg_bed_files/<POP>_lai.bed
+```
+
+Without them, that step stops with an explanatory message and
+`01_table1_values.py` still produces the shared-ancestry column, which depends
+only on the public Skov (2024) calls.
+
+[Add the data availability statement for these files here: who generated them,
+and how a reader can obtain them.]
+
+---
+
 ## Repository layout
 
 ```
@@ -110,6 +142,9 @@ fig1/                        Figure 1 pipeline, numbered in run order
   pairwise_hmmix.sh          between-population comparisons
   pairwise_within_hmmix.sh   within-population comparisons
   04_heatmap.py              builds the matrix and draws the figure
+table1/                      Table 1, reuses fig1 steps 00-03
+  00_ancestry_proportions.py continental ancestry proportions (needs LAI_DIR)
+  01_table1_values.py        assembles the table
 data/raw/                    downloaded inputs (not tracked)
 data/processed/              intermediates (not tracked)
 data/demographic_models/     demes models for the simulation analyses
