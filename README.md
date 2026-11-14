@@ -64,6 +64,24 @@ source /path/to/your/venv/bin/activate
 All paths live in `config.sh` (shell) and `config.py` (Python). Edit those two
 files, or export the same variables, and nothing else needs changing.
 
+### Running on a Slurm cluster
+
+Submit from the repository root, so the scripts can find `config.sh`:
+
+```bash
+cd /path/to/source_pops_amr
+mkdir -p logs            # Slurm will not create the log directory itself
+sbatch --array=0-7 fig2/01_recovered_by_ancestry.script
+```
+
+If you must submit from elsewhere, set `REPO_ROOT` to the repository path.
+
+Each `.script` has a commented placeholder near the top for activating a
+Python environment; fill that in if your cluster needs it, since a Slurm job
+does not inherit your interactive shell. The same applies to any variables you
+exported by hand, such as `LAI_DIR` — set them in `config.sh` rather than
+relying on the environment, or pass `--export` to `sbatch`.
+
 ---
 
 ## Figure 1 — shared archaic ancestry heatmap

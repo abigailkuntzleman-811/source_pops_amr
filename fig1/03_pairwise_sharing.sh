@@ -25,8 +25,25 @@
 
 set -euo pipefail
 
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$HERE/../config.sh"
+# Locate the repository root. When submitted with sbatch, BASH_SOURCE points
+# at a copy of this script in the Slurm spool directory, so the path relative
+# to it does not exist; fall back to the submission directory.
+find_repo_root() {
+  local candidate
+  for candidate in "$(dirname "${BASH_SOURCE[0]}")/.." \
+                   "${SLURM_SUBMIT_DIR:-}" "${SLURM_SUBMIT_DIR:-}/.." \
+                   "$PWD" "$PWD/.."; do
+    if [[ -n "$candidate" && -f "$candidate/config.sh" ]]; then
+      (cd "$candidate" && pwd)
+      return 0
+    fi
+  done
+  echo "ERROR: could not find config.sh. Submit from the repository root," >&2
+  echo "       or set REPO_ROOT to the repository path." >&2
+  exit 1
+}
+REPO_ROOT="${REPO_ROOT:-$(find_repo_root)}"
+source "$REPO_ROOT/config.sh"
 
 ARCHAIC="${1:?usage: 03_pairwise_sharing.sh <all|neanderthal|denisovan>}"
 
@@ -55,11 +72,11 @@ run_task() {
   if (( task_id <= num_between )); then
     local pair="${pairwise_combos[$((task_id - 1))]}"
     echo "BETWEEN: $pair"
-    bash "$HERE/pairwise_hmmix.sh" $pair "$INPUT_DIR" "$OUTPUT_DIR"
+    bash "$REPO_ROOT/fig1/pairwise_hmmix.sh" $pair "$INPUT_DIR" "$OUTPUT_DIR"
   else
     local pop="${within_combos[$((task_id - num_between - 1))]}"
     echo "WITHIN: $pop"
-    bash "$HERE/pairwise_within_hmmix.sh" "$pop" "$INPUT_DIR" "$OUTPUT_DIR"
+    bash "$REPO_ROOT/fig1/pairwise_within_hmmix.sh" "$pop" "$INPUT_DIR" "$OUTPUT_DIR"
   fi
 }
 
