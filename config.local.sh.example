@@ -1,0 +1,22 @@
+# Machine-specific settings. Copy to config.local.sh and edit.
+#
+#     cp config.local.sh.example config.local.sh
+#
+# config.local.sh is not tracked by git, so paths that only exist on your
+# system never end up in the repository. Both config.sh and config.py read it,
+# and anything already exported in your shell takes precedence over it.
+
+# Python virtual environment to activate inside Slurm jobs, which do not
+# inherit the submitting shell's environment. Give the path to the activate
+# script itself.
+# export VENV_ACTIVATE="$HOME/myenv/bin/activate"
+
+# Local ancestry inference files (not publicly available).
+# Expects $LAI_DIR/1kg_bed_files/<POP>_lai.bed and the per-chromosome
+# tract files described in fig2/01_recovered_by_ancestry.py.
+# export LAI_DIR="/path/to/local_ancestry"
+
+# Override any other path from config.sh the same way, for example to keep
+# large intermediates off a quota-limited home directory:
+# export DATA_PROCESSED="$HOME/scratch/source_pops_amr/processed"
+# export RESULTS_DIR="$HOME/scratch/source_pops_amr/results"
