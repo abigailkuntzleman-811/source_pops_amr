@@ -1,0 +1,57 @@
+# ---------------------------------------------------------------------------
+# Data: downloaded inputs and intermediates are not tracked.
+# Reproducible via fig1/00_download_data.sh and the numbered scripts.
+# ---------------------------------------------------------------------------
+data/raw/
+data/processed/
+results/
+
+# Keep the demographic models, which are small and are source material.
+!data/demographic_models/
+
+# ---------------------------------------------------------------------------
+# Genomic file formats (large; never commit these)
+# ---------------------------------------------------------------------------
+*.vcf
+*.vcf.gz
+*.vcf.gz.tbi
+*.bcf
+*.bcf.csi
+*.bam
+*.bai
+*.cram
+*.crai
+*.fa
+*.fasta
+*.fa.gz
+*.fasta.gz
+*.fai
+*.bed
+*.bed.gz
+
+# ---------------------------------------------------------------------------
+# Cluster job output
+# ---------------------------------------------------------------------------
+logs/
+*.out
+*.err
+slurm-*.out
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# ---------------------------------------------------------------------------
+# OS / editor
+# ---------------------------------------------------------------------------
+.DS_Store
+*~
+*.swp
+.vscode/
+.idea/
