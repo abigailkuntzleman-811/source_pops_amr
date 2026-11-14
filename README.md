@@ -108,9 +108,10 @@ python table1/00_ancestry_proportions.py          # needs LAI_DIR (see below)
 python table1/01_table1_values.py                 # -> results/tables/
 ```
 
-`--unit individual` (the default) averages over people; `--unit haplotype`
-averages over haplotypes. The means are nearly identical, the standard
-deviations are not, so state in the methods which one the table reports.
+`--unit individual` (the default) averages over people and reproduces the
+published Table 1 exactly. `--unit haplotype` averages over haplotypes
+instead, giving the same means and marginally different standard deviations.
+The table in the paper reports per-individual values.
 
 ### Local ancestry inference — not public
 

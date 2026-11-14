@@ -27,7 +27,8 @@ Usage:
     python table1/01_table1_values.py --exclude-zeros
 
 The --unit flag must match whichever unit 00_ancestry_proportions.py was run
-with; the two give identical means but different standard deviations.
+with. The default, "individual", reproduces the published Table 1 exactly;
+"haplotype" gives the same means and very slightly different SDs.
 
 Output:
     results/tables/table1_<archaic>_<unit>.csv
