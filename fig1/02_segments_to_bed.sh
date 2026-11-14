@@ -18,8 +18,25 @@
 
 set -euo pipefail
 
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$HERE/../config.sh"
+# Locate the repository root. When submitted with sbatch, BASH_SOURCE points
+# at a copy of this script in the Slurm spool directory, so the path relative
+# to it does not exist; fall back to the submission directory.
+find_repo_root() {
+  local candidate
+  for candidate in "$(dirname "${BASH_SOURCE[0]}")/.." \
+                   "${SLURM_SUBMIT_DIR:-}" "${SLURM_SUBMIT_DIR:-}/.." \
+                   "$PWD" "$PWD/.."; do
+    if [[ -n "$candidate" && -f "$candidate/config.sh" ]]; then
+      (cd "$candidate" && pwd)
+      return 0
+    fi
+  done
+  echo "ERROR: could not find config.sh. Submit from the repository root," >&2
+  echo "       or set REPO_ROOT to the repository path." >&2
+  exit 1
+}
+REPO_ROOT="${REPO_ROOT:-$(find_repo_root)}"
+source "$REPO_ROOT/config.sh"
 
 FILTERED="$DATA_PROCESSED/hmmix_filtered"
 
@@ -47,7 +64,7 @@ for archaic in "${!INPUTS[@]}"; do
   for pop in "${SUB_POPS[@]}"; do
     # Start clean so a re-run never mixes old and new files.
     rm -rf "${out_root:?}/${pop}"
-    python3 "$HERE/02_segments_to_bed.py" "$pop" "$input" "$out_root"
+    python3 "$REPO_ROOT/fig1/02_segments_to_bed.py" "$pop" "$input" "$out_root"
   done
 done
 

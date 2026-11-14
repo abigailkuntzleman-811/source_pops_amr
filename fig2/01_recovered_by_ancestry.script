@@ -1,0 +1,51 @@
+#!/bin/bash
+#
+# Slurm wrapper for fig2/01_recovered_by_ancestry.py.
+# Runs all population x ancestry combinations as an array.
+#
+#     sbatch --array=0-7 fig2/01_recovered_by_ancestry.script
+#
+# Requires the local ancestry inference files; set LAI_DIR in config.sh.
+#
+#SBATCH -J recovered_by_ancestry
+#SBATCH -t 12:00:00
+#SBATCH -n 1
+#SBATCH --mem=40G
+#SBATCH -o logs/recovered_by_ancestry_%a.out
+#SBATCH -e logs/recovered_by_ancestry_%a.err
+#SBATCH --mail-type=FAIL
+
+set -euo pipefail
+
+# Locate the repository root. When submitted with sbatch, BASH_SOURCE points
+# at a copy of this script in the Slurm spool directory, so the path relative
+# to it does not exist; fall back to the submission directory.
+find_repo_root() {
+  local candidate
+  for candidate in "$(dirname "${BASH_SOURCE[0]}")/.." \
+                   "${SLURM_SUBMIT_DIR:-}" "${SLURM_SUBMIT_DIR:-}/.." \
+                   "$PWD" "$PWD/.."; do
+    if [[ -n "$candidate" && -f "$candidate/config.sh" ]]; then
+      (cd "$candidate" && pwd)
+      return 0
+    fi
+  done
+  echo "ERROR: could not find config.sh. Submit from the repository root," >&2
+  echo "       or set REPO_ROOT to the repository path." >&2
+  exit 1
+}
+REPO_ROOT="${REPO_ROOT:-$(find_repo_root)}"
+source "$REPO_ROOT/config.sh"
+
+# Activate your Python environment here if one is needed, e.g.
+#   source /path/to/venv/bin/activate
+
+POPS=(MXL MXL CLM CLM PUR PUR PEL PEL)
+ANCESTRIES=(EUR AMR EUR AMR EUR AMR EUR AMR)
+
+IDX="${SLURM_ARRAY_TASK_ID:-0}"
+POP="${POPS[$IDX]}"
+ANCESTRY="${ANCESTRIES[$IDX]}"
+
+echo "Running: $POP $ANCESTRY"
+python3 "$REPO_ROOT/fig2/01_recovered_by_ancestry.py" "$POP" "$ANCESTRY"

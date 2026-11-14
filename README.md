@@ -64,6 +64,24 @@ source /path/to/your/venv/bin/activate
 All paths live in `config.sh` (shell) and `config.py` (Python). Edit those two
 files, or export the same variables, and nothing else needs changing.
 
+### Running on a Slurm cluster
+
+Submit from the repository root, so the scripts can find `config.sh`:
+
+```bash
+cd /path/to/source_pops_amr
+mkdir -p logs            # Slurm will not create the log directory itself
+sbatch --array=0-7 fig2/01_recovered_by_ancestry.script
+```
+
+If you must submit from elsewhere, set `REPO_ROOT` to the repository path.
+
+Each `.script` has a commented placeholder near the top for activating a
+Python environment; fill that in if your cluster needs it, since a Slurm job
+does not inherit your interactive shell. The same applies to any variables you
+exported by hand, such as `LAI_DIR` — set them in `config.sh` rather than
+relying on the environment, or pass `--export` to `sbatch`.
+
 ---
 
 ## Figure 1 — shared archaic ancestry heatmap
@@ -95,6 +113,36 @@ Repeat steps 3–4 with `denisovan` or `all` for the other panels.
 Each run writes the figure and a CSV of the underlying matrix to
 `results/figures/`, so the values behind the plot can be checked without
 rerunning the pipeline.
+
+---
+
+## Figure 2 — archaic sequence recovered, by continental ancestry
+
+How much unique archaic sequence is recovered as more individuals are sampled,
+split by the continental ancestry of the haplotype carrying it. Requires the
+local ancestry inference files (see `LAI_DIR` below).
+
+```bash
+# one job per population x ancestry; see the .script for a Slurm array
+python fig2/01_recovered_by_ancestry.py MXL EUR
+python fig2/01_recovered_by_ancestry.py MXL AMR
+# ... CLM, PEL, PUR
+
+python fig2/02_plot_recovered_by_ancestry.py        # -> results/figures/
+```
+
+On a Slurm cluster, run all eight combinations as an array:
+
+```bash
+sbatch --array=0-7 fig2/01_recovered_by_ancestry.script
+```
+
+The plotting step takes `--ancestries` if you want a different set than the
+default `EUR AMR`.
+
+| Paper item | Command |
+|---|---|
+| Figure 2 | `python fig2/02_plot_recovered_by_ancestry.py` |
 
 ---
 
@@ -143,6 +191,9 @@ fig1/                        Figure 1 pipeline, numbered in run order
   pairwise_hmmix.sh          between-population comparisons
   pairwise_within_hmmix.sh   within-population comparisons
   04_heatmap.py              builds the matrix and draws the figure
+fig2/                        Figure 2, needs LAI_DIR
+  01_recovered_by_ancestry.py   recovery curves per population and ancestry
+  02_plot_recovered_by_ancestry.py  draws the figure
 table1/                      Table 1, reuses fig1 steps 00-03
   00_ancestry_proportions.py continental ancestry proportions (needs LAI_DIR)
   01_table1_values.py        assembles the table
