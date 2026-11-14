@@ -1,0 +1,23 @@
+# Python dependencies for the Figure 1 / Table 1 pipeline.
+#   pip install -r requirements.txt
+#
+# Pin these to the versions you actually ran before submitting:
+#   pip freeze | grep -iE 'pandas|numpy|matplotlib|pyranges|scipy'
+
+pandas>=1.5
+numpy>=1.23
+matplotlib>=3.6
+pyranges>=0.0.120
+scipy>=1.9
+
+# Used elsewhere in Chapter_1.ipynb, not by the Figure 1 scripts:
+# seaborn>=0.12
+# statsmodels>=0.13
+# scikit-posthocs>=0.7
+# tskit>=0.5
+# msprime>=1.2
+# demes>=0.2
+
+# Non-Python requirement:
+#   bedops >= 2.4   (provides `bedops --intersect`, used by 03_pairwise_sharing.sh)
+#   On Brown's Oscar cluster:  ml bedops
