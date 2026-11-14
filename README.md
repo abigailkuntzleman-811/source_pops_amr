@@ -61,8 +61,19 @@ fresh, activate it before running any of the scripts:
 source /path/to/your/venv/bin/activate
 ```
 
-All paths live in `config.sh` (shell) and `config.py` (Python). Edit those two
-files, or export the same variables, and nothing else needs changing.
+All paths live in `config.sh` (shell) and `config.py` (Python).
+
+For settings specific to your machine — where the local ancestry data lives,
+which Python environment to activate — copy the example file instead of
+editing the tracked ones:
+
+```bash
+cp config.local.sh.example config.local.sh
+```
+
+`config.local.sh` is not tracked by git, so your paths stay local. Both
+`config.sh` and `config.py` read it, and Slurm jobs pick it up automatically,
+including activating the environment named by `VENV_ACTIVATE`.
 
 ### Running on a Slurm cluster
 

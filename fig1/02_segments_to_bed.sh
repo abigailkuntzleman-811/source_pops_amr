@@ -38,6 +38,12 @@ find_repo_root() {
 REPO_ROOT="${REPO_ROOT:-$(find_repo_root)}"
 source "$REPO_ROOT/config.sh"
 
+# Activate the Python environment, if config.local.sh names one. A Slurm job
+# does not inherit the submitting shell's environment.
+if [[ -n "${VENV_ACTIVATE:-}" ]]; then
+  source "$VENV_ACTIVATE"
+fi
+
 FILTERED="$DATA_PROCESSED/hmmix_filtered"
 
 # archaic label -> filtered CSV produced by 01_filter_hmmix_calls.py

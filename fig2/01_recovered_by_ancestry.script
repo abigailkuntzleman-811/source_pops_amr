@@ -37,8 +37,11 @@ find_repo_root() {
 REPO_ROOT="${REPO_ROOT:-$(find_repo_root)}"
 source "$REPO_ROOT/config.sh"
 
-# Activate your Python environment here if one is needed, e.g.
-#   source /path/to/venv/bin/activate
+# Activate the Python environment, if config.local.sh names one. A Slurm job
+# does not inherit the submitting shell's environment.
+if [[ -n "${VENV_ACTIVATE:-}" ]]; then
+  source "$VENV_ACTIVATE"
+fi
 
 POPS=(MXL MXL CLM CLM PUR PUR PEL PEL)
 ANCESTRIES=(EUR AMR EUR AMR EUR AMR EUR AMR)

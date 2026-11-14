@@ -14,6 +14,34 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent
 
 
+def _load_local_config() -> None:
+    """Apply settings from config.local.sh, if it exists.
+
+    That file is shell, but it is a plain list of `export NAME=value` lines,
+    so it can be read here too. Values already set in the environment win,
+    so an explicit export on the command line still overrides it.
+    """
+    local = PROJECT_ROOT / "config.local.sh"
+    if not local.exists():
+        return
+
+    for line in local.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("export "):
+            line = line[len("export "):]
+        if "=" not in line:
+            continue
+        name, _, value = line.partition("=")
+        name, value = name.strip(), value.strip().strip('"').strip("'")
+        if name.isidentifier() and name not in os.environ:
+            os.environ[name] = value
+
+
+_load_local_config()
+
+
 def _path(env_var: str, default: Path) -> Path:
     """Return the path from an environment variable, or a default."""
     value = os.environ.get(env_var)

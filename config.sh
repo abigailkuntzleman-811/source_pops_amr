@@ -13,6 +13,14 @@
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export PROJECT_ROOT
 
+# Machine-specific settings (paths, virtual environment) live in
+# config.local.sh, which is not tracked by git. Copy config.local.sh.example
+# and edit it. Sourced first so its values take precedence over the defaults
+# below, which all use ${VAR:-default}.
+if [[ -f "$PROJECT_ROOT/config.local.sh" ]]; then
+  source "$PROJECT_ROOT/config.local.sh"
+fi
+
 # --- Inputs -----------------------------------------------------------------
 # Downloaded public data (see code/00_download_data.sh).
 export DATA_RAW="${DATA_RAW:-$PROJECT_ROOT/data/raw}"
