@@ -51,7 +51,15 @@ pip install -r requirements.txt
 ```
 
 Also required: **bedops** ≥ 2.4, which provides `bedops --intersect`.
-On Brown's Oscar cluster: `ml bedops`.
+On an HPC system it may already be available as a module, e.g.
+`module load bedops`.
+
+If you are running in an existing virtual environment rather than installing
+fresh, activate it before running any of the scripts:
+
+```bash
+source /path/to/your/venv/bin/activate
+```
 
 All paths live in `config.sh` (shell) and `config.py` (Python). Edit those two
 files, or export the same variables, and nothing else needs changing.

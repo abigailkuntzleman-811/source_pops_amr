@@ -27,8 +27,7 @@ DATA_RAW = _path("DATA_RAW", PROJECT_ROOT / "data" / "raw")
 HMMIX_DIR = _path("HMMIX_DIR", DATA_RAW / "skov_archaic")
 
 # Local ancestry inference BED files.
-# NOTE: not public. Point this at wherever you have them.
-# On Brown's Oscar cluster this was /oscar/data/ehuertas/data/sharing/jaz
+# NOTE: not publicly available. Point this at wherever you have them.
 LAI_DIR = _path("LAI_DIR", DATA_RAW / "local_ancestry")
 
 # --- Outputs ----------------------------------------------------------------

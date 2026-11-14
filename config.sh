@@ -21,9 +21,7 @@ export DATA_RAW="${DATA_RAW:-$PROJECT_ROOT/data/raw}"
 export HMMIX_DIR="${HMMIX_DIR:-$DATA_RAW/skov_archaic}"
 
 # Local ancestry inference BED files.
-# NOTE: not public. Set this to wherever you have them.
-# On Brown's Oscar cluster this was:
-#   /oscar/data/ehuertas/data/sharing/jaz
+# NOTE: not publicly available. Set this to wherever you have them.
 export LAI_DIR="${LAI_DIR:-$DATA_RAW/local_ancestry}"
 
 # --- Outputs ----------------------------------------------------------------

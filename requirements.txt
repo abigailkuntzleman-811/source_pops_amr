@@ -19,5 +19,6 @@ scipy>=1.9
 # demes>=0.2
 
 # Non-Python requirement:
-#   bedops >= 2.4   (provides `bedops --intersect`, used by 03_pairwise_sharing.sh)
-#   On Brown's Oscar cluster:  ml bedops
+#   bedops >= 2.4   (provides `bedops --intersect`, used by
+#                    fig1/03_pairwise_sharing.sh)
+#   On an HPC system it may be available as a module, e.g. `module load bedops`.
