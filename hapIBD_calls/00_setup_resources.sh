@@ -57,6 +57,20 @@ else
     || { echo "unzip not found; unpack $MAP_ZIP manually" >&2; exit 1; }
   unzip -o -d "$GENETIC_MAP_DIR" "$MAP_ZIP"
   rm -f "$MAP_ZIP"
+
+  # The archive unpacks into chr_in_chrom_field/ and no_chr_in_chrom_field/.
+  # 01_call_ibd.sh adds a chr prefix when the map lacks one, so either works;
+  # lift one set up to $GENETIC_MAP_DIR so the default path finds them.
+  for sub in no_chr_in_chrom_field chr_in_chrom_field; do
+    if [[ -d "$GENETIC_MAP_DIR/$sub" ]]; then
+      echo "unpacked into $sub/; linking those maps into $GENETIC_MAP_DIR"
+      for f in "$GENETIC_MAP_DIR/$sub"/*.map; do
+        [[ -e "$f" ]] && ln -sf "$sub/$(basename "$f")" \
+                               "$GENETIC_MAP_DIR/$(basename "$f")"
+      done
+      break
+    fi
+  done
 fi
 
 missing=0
