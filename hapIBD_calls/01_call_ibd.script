@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+# Slurm wrapper for hapIBD_calls/01_call_ibd.sh: one task per autosome.
+#
+#     mkdir -p logs
+#     sbatch --array=1-22 hapIBD_calls/01_call_ibd.script
+#
+#SBATCH -J call_ibd
+#SBATCH -t 24:00:00
+#SBATCH -n 1
+#SBATCH --mem=24G
+#SBATCH -o logs/call_ibd_%a.out
+#SBATCH -e logs/call_ibd_%a.err
+#SBATCH --mail-type=FAIL
+
+set -euo pipefail
+
+# Locate the repository root. When submitted with sbatch, BASH_SOURCE points
+# at a copy of this script in the Slurm spool directory, so the path relative
+# to it does not exist; fall back to the submission directory.
+find_repo_root() {
+  local candidate
+  for candidate in "$(dirname "${BASH_SOURCE[0]}")/.." \
+                   "${SLURM_SUBMIT_DIR:-}" "${SLURM_SUBMIT_DIR:-}/.." \
+                   "$PWD" "$PWD/.."; do
+    if [[ -n "$candidate" && -f "$candidate/config.sh" ]]; then
+      (cd "$candidate" && pwd)
+      return 0
+    fi
+  done
+  echo "ERROR: could not find config.sh. Submit from the repository root," >&2
+  echo "       or set REPO_ROOT to the repository path." >&2
+  exit 1
+}
+REPO_ROOT="${REPO_ROOT:-$(find_repo_root)}"
+source "$REPO_ROOT/config.sh"
+
+if [[ -n "${VENV_ACTIVATE:-}" ]]; then
+  source "$VENV_ACTIVATE"
+fi
+
+module load bcftools 2>/dev/null || true
+
+# Give hap-ibd a little less than the job's memory allocation.
+export IBD_JAVA_MEM="${IBD_JAVA_MEM:-20}"
+
+bash "$REPO_ROOT/hapIBD_calls/01_call_ibd.sh" "${SLURM_ARRAY_TASK_ID:?set --array=1-22}"

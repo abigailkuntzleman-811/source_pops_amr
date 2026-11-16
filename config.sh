@@ -42,6 +42,29 @@ export TABLE_DIR="${TABLE_DIR:-$RESULTS_DIR/tables}"
 export BY_POP_DIR="${BY_POP_DIR:-$DATA_PROCESSED/hmmix_by_pop}"
 export PAIRWISE_DIR="${PAIRWISE_DIR:-$DATA_PROCESSED/pairwise_comparisons}"
 
+# --- IBD ---
+# Downloaded 1000 Genomes VCFs (reused by the IBD pipeline).
+export VCF_DIR="${VCF_DIR:-$DATA_RAW/1kgp_30x_grch38}"
+
+# hap-ibd executable. ibd/00_setup_resources.sh downloads it here.
+export HAPIBD_JAR="${HAPIBD_JAR:-$DATA_RAW/tools/hap-ibd.jar}"
+
+# PLINK-format genetic maps in cM for GRCh38, one per chromosome.
+# Available from the Beagle genetic maps page; see ibd/00_setup_resources.sh.
+export GENETIC_MAP_DIR="${GENETIC_MAP_DIR:-$DATA_RAW/genetic_maps}"
+export GENETIC_MAP_TEMPLATE="${GENETIC_MAP_TEMPLATE:-plink.chr{CHROM}.GRCh38.map}"
+
+# hap-ibd output: kgp_chr<N>_segments.ibd.gz
+export IBD_DIR="${IBD_DIR:-$DATA_PROCESSED/ibd}"
+
+# Optional file of sample IDs to exclude as related (one per line, or a
+# PLINK-style FID/IID pair per line, as KING writes). Leave unset to fall
+# back to the 698 related samples named in the 1000 Genomes pedigree.
+export RELATED_EXCLUDE="${RELATED_EXCLUDE:-}"
+
+# Minimum MAF for a variant to enter IBD calling.
+export IBD_MIN_MAF="${IBD_MIN_MAF:-0.05}"
+
 # --- Analysis parameters ----------------------------------------------------
 # Minimum hmmix mean posterior probability for a segment to be retained.
 export HMMIX_MIN_PROB="${HMMIX_MIN_PROB:-0.80}"

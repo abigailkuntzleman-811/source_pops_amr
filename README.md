@@ -157,6 +157,52 @@ default `EUR AMR`.
 
 ---
 
+## IBD calling
+
+Detects IBD segments in the 1000 Genomes 30x phased panel with hap-ibd. This
+is independent of the archaic analyses and feeds Figure 3.
+
+```bash
+bash hapIBD_calls/00_setup_resources.sh             # downloads hap-ibd.jar
+# put PLINK-format GRCh38 genetic maps in $GENETIC_MAP_DIR (see that script)
+
+mkdir -p logs
+sbatch --array=1-22 hapIBD_calls/01_call_ibd.script  # one job per autosome
+```
+
+Each chromosome is filtered to common (MAF > 0.05) biallelic SNPs with
+duplicate positions removed, then passed to hap-ibd.
+
+> Zhou, Y., Browning, S.R., Browning, B.L. (2020). A fast and simple method
+> for detecting identity by descent segments in large-scale data.
+> *American Journal of Human Genetics*, 106(4), 426-437.
+> https://doi.org/10.1016/j.ajhg.2020.02.010
+
+`02_within_population_ibd.py` sums segment lengths across autosomes for every
+within-population haplotype pair. Pairs with no detected IBD count as zero, so
+the denominator is the number of possible pairs rather than the number
+observed. Related individuals are excluded: set `RELATED_EXCLUDE` to a file of
+sample IDs (KING output works), or leave it unset to exclude the samples with
+a parent recorded in the 1000 Genomes pedigree.
+
+---
+
+## Figure 3 — shared archaic ancestry versus shared IBD
+
+```bash
+bash   fig1/03_pairwise_sharing.sh all        # archaic sharing, if not already run
+python fig3/01_within_population_ibd.py       # aggregate the hap-ibd output
+python fig3/02_plot_ibd_vs_archaic.py         # -> results/figures/
+```
+
+| Paper item | Command |
+|---|---|
+| Figure 3 | `python fig3/02_plot_ibd_vs_archaic.py` |
+
+Also writes `results/tables/archaic_share_vs_ibd.csv` with the plotted values.
+
+---
+
 ## Table 1 — admixture proportion and shared archaic ancestry
 
 Reuses the pairwise sharing output from Figure 1, so run `fig1/00`–`fig1/03`
@@ -205,6 +251,12 @@ fig1/                        Figure 1 pipeline, numbered in run order
 fig2/                        Figure 2, needs LAI_DIR
   01_recovered_by_ancestry.py   recovery curves per population and ancestry
   02_plot_recovered_by_ancestry.py  draws the figure
+fig3/                        Figure 3, needs fig1 and hapIBD_calls output
+  01_within_population_ibd.py  within-population IBD per haplotype pair
+  02_plot_ibd_vs_archaic.py    archaic sharing against IBD sharing
+hapIBD_calls/                IBD calling with hap-ibd
+  00_setup_resources.sh      downloads hap-ibd.jar
+  01_call_ibd.sh/.script     filter the panel and call IBD, per chromosome
 table1/                      Table 1, reuses fig1 steps 00-03
   00_ancestry_proportions.py continental ancestry proportions (needs LAI_DIR)
   01_table1_values.py        assembles the table
