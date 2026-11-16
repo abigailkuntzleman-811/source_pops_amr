@@ -24,6 +24,7 @@ set -euo pipefail
 find_repo_root() {
   local candidate
   for candidate in "$(dirname "${BASH_SOURCE[0]}")/.." \
+                   "$(dirname "${BASH_SOURCE[0]}")/../.." \
                    "${SLURM_SUBMIT_DIR:-}" "${SLURM_SUBMIT_DIR:-}/.." \
                    "$PWD" "$PWD/.."; do
     if [[ -n "$candidate" && -f "$candidate/config.sh" ]]; then
@@ -70,7 +71,7 @@ for archaic in "${!INPUTS[@]}"; do
   for pop in "${SUB_POPS[@]}"; do
     # Start clean so a re-run never mixes old and new files.
     rm -rf "${out_root:?}/${pop}"
-    python3 "$REPO_ROOT/fig1/02_segments_to_bed.py" "$pop" "$input" "$out_root"
+    python3 "$REPO_ROOT/figure_code/fig1/02_segments_to_bed.py" "$pop" "$input" "$out_root"
   done
 done
 

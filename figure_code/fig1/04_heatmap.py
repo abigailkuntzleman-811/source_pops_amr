@@ -23,7 +23,9 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+_root = next(p for p in Path(__file__).resolve().parents
+             if (p / "config.py").exists())
+sys.path.insert(0, str(_root))
 from config import FIGURE_DIR, PAIRWISE_DIR  # noqa: E402
 
 # Display order for the heatmap axes: East Asian, European, South Asian,

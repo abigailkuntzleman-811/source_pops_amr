@@ -23,6 +23,7 @@ set -euo pipefail
 find_repo_root() {
   local candidate
   for candidate in "$(dirname "${BASH_SOURCE[0]}")/.." \
+                   "$(dirname "${BASH_SOURCE[0]}")/../.." \
                    "${SLURM_SUBMIT_DIR:-}" "${SLURM_SUBMIT_DIR:-}/.." \
                    "$PWD" "$PWD/.."; do
     if [[ -n "$candidate" && -f "$candidate/config.sh" ]]; then
@@ -51,4 +52,4 @@ POP="${POPS[$IDX]}"
 ANCESTRY="${ANCESTRIES[$IDX]}"
 
 echo "Running: $POP $ANCESTRY"
-python3 "$REPO_ROOT/fig2/01_recovered_by_ancestry.py" "$POP" "$ANCESTRY"
+python3 "$REPO_ROOT/figure_code/fig2/01_recovered_by_ancestry.py" "$POP" "$ANCESTRY"

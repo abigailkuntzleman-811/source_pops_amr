@@ -33,7 +33,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+_root = next(p for p in Path(__file__).resolve().parents
+             if (p / "config.py").exists())
+sys.path.insert(0, str(_root))
 from config import (DATA_RAW, IBD_DIR, RELATED_EXCLUDE,  # noqa: E402
                     CHROMOSOMES)
 

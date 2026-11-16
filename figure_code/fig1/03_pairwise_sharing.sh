@@ -31,6 +31,7 @@ set -euo pipefail
 find_repo_root() {
   local candidate
   for candidate in "$(dirname "${BASH_SOURCE[0]}")/.." \
+                   "$(dirname "${BASH_SOURCE[0]}")/../.." \
                    "${SLURM_SUBMIT_DIR:-}" "${SLURM_SUBMIT_DIR:-}/.." \
                    "$PWD" "$PWD/.."; do
     if [[ -n "$candidate" && -f "$candidate/config.sh" ]]; then
@@ -78,11 +79,11 @@ run_task() {
   if (( task_id <= num_between )); then
     local pair="${pairwise_combos[$((task_id - 1))]}"
     echo "BETWEEN: $pair"
-    bash "$REPO_ROOT/fig1/pairwise_hmmix.sh" $pair "$INPUT_DIR" "$OUTPUT_DIR"
+    bash "$REPO_ROOT/figure_code/fig1/pairwise_hmmix.sh" $pair "$INPUT_DIR" "$OUTPUT_DIR"
   else
     local pop="${within_combos[$((task_id - num_between - 1))]}"
     echo "WITHIN: $pop"
-    bash "$REPO_ROOT/fig1/pairwise_within_hmmix.sh" "$pop" "$INPUT_DIR" "$OUTPUT_DIR"
+    bash "$REPO_ROOT/figure_code/fig1/pairwise_within_hmmix.sh" "$pop" "$INPUT_DIR" "$OUTPUT_DIR"
   fi
 }
 
