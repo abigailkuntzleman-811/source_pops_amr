@@ -107,7 +107,11 @@ curfile="$target"
 # ---------------------------------------------------------------------------
 echo "STEP 5: hap-ibd"
 
-MAP_SRC="$GENETIC_MAP_DIR/${GENETIC_MAP_TEMPLATE/\{CHROM\}/$CHROM}"
+# Substitute with sed rather than bash parameter expansion: the brace
+# escaping in ${VAR/\{CHROM\}/...} is not portable across bash versions
+# and silently produced a mangled filename on some systems.
+MAP_NAME="$(printf "%s" "$GENETIC_MAP_TEMPLATE" | sed "s/{CHROM}/$CHROM/g")"
+MAP_SRC="$GENETIC_MAP_DIR/$MAP_NAME"
 [[ -s "$MAP_SRC" ]] || { echo "genetic map not found: $MAP_SRC" >&2; exit 1; }
 
 MAP="$WORK/$(basename "$MAP_SRC" .map).chrprefix.map"

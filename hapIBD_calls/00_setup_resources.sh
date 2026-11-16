@@ -55,14 +55,15 @@ mkdir -p "$GENETIC_MAP_DIR"
 
 missing=0
 for CHROM in {1..22}; do
-  map="$GENETIC_MAP_DIR/${GENETIC_MAP_TEMPLATE/\{CHROM\}/$CHROM}"
+  map_name="$(printf "%s" "$GENETIC_MAP_TEMPLATE" | sed "s/{CHROM}/$CHROM/g")"
+  map="$GENETIC_MAP_DIR/$map_name"
   [[ -s "$map" ]] || missing=$((missing + 1))
 done
 
 if (( missing > 0 )); then
   echo
   echo "NOTE: $missing of 22 genetic maps are missing from $GENETIC_MAP_DIR"
-  echo "      Expected filenames like: ${GENETIC_MAP_TEMPLATE/\{CHROM\}/1}"
+  echo "      Expected filenames like: $(printf "%s" "$GENETIC_MAP_TEMPLATE" | sed "s/{CHROM}/1/g")"
   echo "      See the comment block in this script for where to get them."
 else
   echo "ok    all 22 genetic maps present"
