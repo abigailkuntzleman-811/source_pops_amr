@@ -163,12 +163,14 @@ Detects IBD segments in the 1000 Genomes 30x phased panel with hap-ibd. This
 is independent of the archaic analyses and feeds Figure 3.
 
 ```bash
-bash hapIBD_calls/00_setup_resources.sh             # downloads hap-ibd.jar
-# put PLINK-format GRCh38 genetic maps in $GENETIC_MAP_DIR (see that script)
+bash hapIBD_calls/00_setup_resources.sh             # hap-ibd.jar + genetic maps
 
 mkdir -p logs
 sbatch --array=1-22 hapIBD_calls/01_call_ibd.script  # one job per autosome
 ```
+
+`00_setup_resources.sh` downloads hap-ibd and the PLINK-format GRCh38 HapMap
+genetic maps, which hap-ibd needs in cM units.
 
 Each chromosome is filtered to common (MAF > 0.05) biallelic SNPs with
 duplicate positions removed, then passed to hap-ibd.
