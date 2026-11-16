@@ -72,6 +72,16 @@ BY_POP_DIR = _path("BY_POP_DIR", DATA_PROCESSED / "hmmix_by_pop")
 # Pairwise sharing results (03_pairwise_sharing.sh).
 PAIRWISE_DIR = _path("PAIRWISE_DIR", DATA_PROCESSED / "pairwise_comparisons")
 
+# --- IBD ---
+VCF_DIR = _path("VCF_DIR", DATA_RAW / "1kgp_30x_grch38")
+IBD_DIR = _path("IBD_DIR", DATA_PROCESSED / "ibd")
+GENETIC_MAP_DIR = _path("GENETIC_MAP_DIR", DATA_RAW / "genetic_maps")
+
+# Optional file of related sample IDs to exclude. Empty means fall back to
+# the related samples named in the 1000 Genomes pedigree.
+_related = os.environ.get("RELATED_EXCLUDE", "").strip()
+RELATED_EXCLUDE = Path(_related) if _related else None
+
 # --- Analysis parameters ----------------------------------------------------
 # Minimum hmmix mean posterior probability for a segment to be retained.
 HMMIX_MIN_PROB = float(os.environ.get("HMMIX_MIN_PROB", 0.80))
