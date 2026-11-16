@@ -17,7 +17,9 @@ from pathlib import Path
 
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+_root = next(p for p in Path(__file__).resolve().parents
+             if (p / "config.py").exists())
+sys.path.insert(0, str(_root))
 from config import HMMIX_DIR, HMMIX_MIN_PROB, DATA_PROCESSED  # noqa: E402
 
 SEGMENTS_FILE = HMMIX_DIR / "hg38_1000g_segments.txt"

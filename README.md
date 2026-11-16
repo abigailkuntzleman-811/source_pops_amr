@@ -5,7 +5,7 @@ Analysis code for *[PAPER TITLE]*.
 **Author:** Abigail Kuntzleman [, co-authors]
 **Paper / preprint:** [DOI or link]
 
-This repository is being organised one figure at a time. `fig1/` holds the
+This repository is being organised one figure at a time. `figure_code/fig1/` holds the
 complete pipeline for **Figure 1**, the heatmap of shared archaic ancestry
 between populations. The remaining analyses currently live in
 `Chapter_1.ipynb` and will be added as they are tidied.
@@ -14,7 +14,7 @@ between populations. The remaining analyses currently live in
 
 ## Data
 
-No large data files are stored here. `fig1/00_download_data.sh` retrieves
+No large data files are stored here. `figure_code/fig1/00_download_data.sh` retrieves
 everything that is public.
 
 ### Archaic introgression calls
@@ -39,7 +39,7 @@ from the targets because they are used to construct the hmmix outgroup.
 
 **Filtering applied here:** segments with mean posterior probability ≥ 0.80,
 split by `ND_type` into Neanderthal and Denisovan sets
-(`fig1/01_filter_hmmix_calls.py`). The 0.80 threshold follows the
+(`figure_code/fig1/01_filter_hmmix_calls.py`). The 0.80 threshold follows the
 recommendation in the Zenodo record.
 
 ---
@@ -82,7 +82,7 @@ Submit from the repository root, so the scripts can find `config.sh`:
 ```bash
 cd /path/to/source_pops_amr
 mkdir -p logs            # Slurm will not create the log directory itself
-sbatch --array=0-7 fig2/01_recovered_by_ancestry.script
+sbatch --array=0-7 figure_code/fig2/01_recovered_by_ancestry.script
 ```
 
 If you must submit from elsewhere, set `REPO_ROOT` to the repository path.
@@ -98,18 +98,18 @@ relying on the environment, or pass `--export` to `sbatch`.
 ## Figure 1 — shared archaic ancestry heatmap
 
 ```bash
-bash   fig1/00_download_data.sh                    # ~1.5 GB from Zenodo
-python fig1/01_filter_hmmix_calls.py               # mean_prob >= 0.80
-bash   fig1/02_segments_to_bed.sh                  # per-haplotype BED files
-bash   fig1/03_pairwise_sharing.sh neanderthal     # pairwise intersections
-python fig1/04_heatmap.py neanderthal              # -> results/figures/
+bash   figure_code/fig1/00_download_data.sh                    # ~1.5 GB from Zenodo
+python figure_code/fig1/01_filter_hmmix_calls.py               # mean_prob >= 0.80
+bash   figure_code/fig1/02_segments_to_bed.sh                  # per-haplotype BED files
+bash   figure_code/fig1/03_pairwise_sharing.sh neanderthal     # pairwise intersections
+python figure_code/fig1/04_heatmap.py neanderthal              # -> results/figures/
 ```
 
 Step 3 is the expensive one: every haplotype pair within and between 19
 populations. On a Slurm cluster run it as an array job instead:
 
 ```bash
-sbatch --array=1-190 fig1/03_pairwise_sharing.sh neanderthal
+sbatch --array=1-190 figure_code/fig1/03_pairwise_sharing.sh neanderthal
 ```
 
 Repeat steps 3–4 with `denisovan` or `all` for the other panels.
@@ -118,8 +118,8 @@ Repeat steps 3–4 with `denisovan` or `all` for the other panels.
 
 | Paper item | Command |
 |---|---|
-| Figure 1, Neanderthal panel | `python fig1/04_heatmap.py neanderthal` |
-| Figure 1, Denisovan panel | `python fig1/04_heatmap.py denisovan` |
+| Figure 1, Neanderthal panel | `python figure_code/fig1/04_heatmap.py neanderthal` |
+| Figure 1, Denisovan panel | `python figure_code/fig1/04_heatmap.py denisovan` |
 
 Each run writes the figure and a CSV of the underlying matrix to
 `results/figures/`, so the values behind the plot can be checked without
@@ -135,17 +135,17 @@ local ancestry inference files (see `LAI_DIR` below).
 
 ```bash
 # one job per population x ancestry; see the .script for a Slurm array
-python fig2/01_recovered_by_ancestry.py MXL EUR
-python fig2/01_recovered_by_ancestry.py MXL AMR
+python figure_code/fig2/01_recovered_by_ancestry.py MXL EUR
+python figure_code/fig2/01_recovered_by_ancestry.py MXL AMR
 # ... CLM, PEL, PUR
 
-python fig2/02_plot_recovered_by_ancestry.py        # -> results/figures/
+python figure_code/fig2/02_plot_recovered_by_ancestry.py        # -> results/figures/
 ```
 
 On a Slurm cluster, run all eight combinations as an array:
 
 ```bash
-sbatch --array=0-7 fig2/01_recovered_by_ancestry.script
+sbatch --array=0-7 figure_code/fig2/01_recovered_by_ancestry.script
 ```
 
 The plotting step takes `--ancestries` if you want a different set than the
@@ -153,7 +153,7 @@ default `EUR AMR`.
 
 | Paper item | Command |
 |---|---|
-| Figure 2 | `python fig2/02_plot_recovered_by_ancestry.py` |
+| Figure 2 | `python figure_code/fig2/02_plot_recovered_by_ancestry.py` |
 
 ---
 
@@ -163,12 +163,14 @@ Detects IBD segments in the 1000 Genomes 30x phased panel with hap-ibd. This
 is independent of the archaic analyses and feeds Figure 3.
 
 ```bash
-bash hapIBD_calls/00_setup_resources.sh             # downloads hap-ibd.jar
-# put PLINK-format GRCh38 genetic maps in $GENETIC_MAP_DIR (see that script)
+bash hapIBD_calls/00_setup_resources.sh             # hap-ibd.jar + genetic maps
 
 mkdir -p logs
 sbatch --array=1-22 hapIBD_calls/01_call_ibd.script  # one job per autosome
 ```
+
+`00_setup_resources.sh` downloads hap-ibd and the PLINK-format GRCh38 HapMap
+genetic maps, which hap-ibd needs in cM units.
 
 Each chromosome is filtered to common (MAF > 0.05) biallelic SNPs with
 duplicate positions removed, then passed to hap-ibd.
@@ -190,14 +192,14 @@ a parent recorded in the 1000 Genomes pedigree.
 ## Figure 3 — shared archaic ancestry versus shared IBD
 
 ```bash
-bash   fig1/03_pairwise_sharing.sh all        # archaic sharing, if not already run
-python fig3/01_within_population_ibd.py       # aggregate the hap-ibd output
-python fig3/02_plot_ibd_vs_archaic.py         # -> results/figures/
+bash   figure_code/fig1/03_pairwise_sharing.sh all        # archaic sharing, if not already run
+python figure_code/fig3/01_within_population_ibd.py       # aggregate the hap-ibd output
+python figure_code/fig3/02_plot_ibd_vs_archaic.py         # -> results/figures/
 ```
 
 | Paper item | Command |
 |---|---|
-| Figure 3 | `python fig3/02_plot_ibd_vs_archaic.py` |
+| Figure 3 | `python figure_code/fig3/02_plot_ibd_vs_archaic.py` |
 
 Also writes `results/tables/archaic_share_vs_ibd.csv` with the plotted values.
 
@@ -205,7 +207,7 @@ Also writes `results/tables/archaic_share_vs_ibd.csv` with the plotted values.
 
 ## Table 1 — admixture proportion and shared archaic ancestry
 
-Reuses the pairwise sharing output from Figure 1, so run `fig1/00`–`fig1/03`
+Reuses the pairwise sharing output from Figure 1, so run `figure_code/fig1/00`–`figure_code/fig1/03`
 first.
 
 ```bash
@@ -240,7 +242,7 @@ and how a reader can obtain them.]
 
 ```
 config.py, config.sh         all paths and parameters
-fig1/                        Figure 1 pipeline, numbered in run order
+  fig1/                      Figure 1 pipeline, numbered in run order
   00_download_data.sh        fetch public inputs
   01_filter_hmmix_calls.py   posterior probability filter
   02_segments_to_bed.py/.sh  per-haplotype BED files
@@ -248,10 +250,10 @@ fig1/                        Figure 1 pipeline, numbered in run order
   pairwise_hmmix.sh          between-population comparisons
   pairwise_within_hmmix.sh   within-population comparisons
   04_heatmap.py              builds the matrix and draws the figure
-fig2/                        Figure 2, needs LAI_DIR
+figure_code/fig2/                        Figure 2, needs LAI_DIR
   01_recovered_by_ancestry.py   recovery curves per population and ancestry
   02_plot_recovered_by_ancestry.py  draws the figure
-fig3/                        Figure 3, needs fig1 and hapIBD_calls output
+figure_code/fig3/                        Figure 3, needs fig1 and hapIBD_calls output
   01_within_population_ibd.py  within-population IBD per haplotype pair
   02_plot_ibd_vs_archaic.py    archaic sharing against IBD sharing
 hapIBD_calls/                IBD calling with hap-ibd
@@ -264,7 +266,7 @@ data/raw/                    downloaded inputs (not tracked)
 data/processed/              intermediates (not tracked)
 data/demographic_models/     demes models for the simulation analyses
 results/figures/             generated figures
-scripts/                     earlier versions, superseded by fig1/
+scripts/                     earlier versions, superseded by figure_code/fig1/
 Chapter_1.ipynb              full exploratory notebook
 ```
 

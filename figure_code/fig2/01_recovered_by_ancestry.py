@@ -30,7 +30,9 @@ from pathlib import Path
 import pandas as pd
 import pyranges as pr
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+_root = next(p for p in Path(__file__).resolve().parents
+             if (p / "config.py").exists())
+sys.path.insert(0, str(_root))
 from config import CHROMOSOMES, LAI_DIR, RECOVERED_DIR  # noqa: E402
 
 RENAME = {"chrom": "Chromosome", "start": "Start", "end": "End"}

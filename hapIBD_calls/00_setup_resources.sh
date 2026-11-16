@@ -37,32 +37,53 @@ java -jar "$HAPIBD_JAR" 2>&1 | head -2 || {
 # ---------------------------------------------------------------------------
 # Genetic maps
 #
-# hap-ibd needs PLINK-format genetic maps in cM for GRCh38, one per
-# chromosome. These are distributed from the Beagle genetic maps page:
-#
-#     https://faculty.washington.edu/browning/beagle/beagle.html
-#
-# Download the PLINK-format GRCh38 maps, unpack them into
-# $GENETIC_MAP_DIR, and make sure the filenames match
-# $GENETIC_MAP_TEMPLATE (default: plink.chr{CHROM}.GRCh38.map).
-#
-# They are not downloaded automatically here because the archive name has
-# changed between releases; pinning a URL that later moves is worse than
-# saying plainly where to get them.
+# hap-ibd needs PLINK-format genetic maps in cM, with chromosome identifiers
+# matching the VCF. These are the HapMap maps distributed alongside Beagle;
+# the GRCh38 archive is linked from the hap-ibd README.
 # ---------------------------------------------------------------------------
 
 mkdir -p "$GENETIC_MAP_DIR"
 
+MAP_URL="https://bochet.gcc.biostat.washington.edu/beagle/genetic_maps/plink.GRCh38.map.zip"
+MAP_ZIP="$GENETIC_MAP_DIR/$(basename "$MAP_URL")"
+
+first_map="$(printf "%s" "$GENETIC_MAP_TEMPLATE" | sed "s/{CHROM}/1/g")"
+if [[ -s "$GENETIC_MAP_DIR/$first_map" ]]; then
+  echo "skip  genetic maps already present"
+else
+  echo "fetch $(basename "$MAP_URL")"
+  wget -c --show-progress -O "$MAP_ZIP" "$MAP_URL"
+  command -v unzip >/dev/null \
+    || { echo "unzip not found; unpack $MAP_ZIP manually" >&2; exit 1; }
+  unzip -o -d "$GENETIC_MAP_DIR" "$MAP_ZIP"
+  rm -f "$MAP_ZIP"
+
+  # The archive unpacks into chr_in_chrom_field/ and no_chr_in_chrom_field/.
+  # 01_call_ibd.sh adds a chr prefix when the map lacks one, so either works;
+  # lift one set up to $GENETIC_MAP_DIR so the default path finds them.
+  for sub in no_chr_in_chrom_field chr_in_chrom_field; do
+    if [[ -d "$GENETIC_MAP_DIR/$sub" ]]; then
+      echo "unpacked into $sub/; linking those maps into $GENETIC_MAP_DIR"
+      for f in "$GENETIC_MAP_DIR/$sub"/*.map; do
+        [[ -e "$f" ]] && ln -sf "$sub/$(basename "$f")" \
+                               "$GENETIC_MAP_DIR/$(basename "$f")"
+      done
+      break
+    fi
+  done
+fi
+
 missing=0
 for CHROM in {1..22}; do
-  map="$GENETIC_MAP_DIR/${GENETIC_MAP_TEMPLATE/\{CHROM\}/$CHROM}"
+  map_name="$(printf "%s" "$GENETIC_MAP_TEMPLATE" | sed "s/{CHROM}/$CHROM/g")"
+  map="$GENETIC_MAP_DIR/$map_name"
   [[ -s "$map" ]] || missing=$((missing + 1))
 done
 
 if (( missing > 0 )); then
   echo
   echo "NOTE: $missing of 22 genetic maps are missing from $GENETIC_MAP_DIR"
-  echo "      Expected filenames like: ${GENETIC_MAP_TEMPLATE/\{CHROM\}/1}"
+  echo "      Expected filenames like: $(printf "%s" "$GENETIC_MAP_TEMPLATE" | sed "s/{CHROM}/1/g")"
   echo "      See the comment block in this script for where to get them."
 else
   echo "ok    all 22 genetic maps present"

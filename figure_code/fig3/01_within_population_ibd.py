@@ -33,7 +33,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+_root = next(p for p in Path(__file__).resolve().parents
+             if (p / "config.py").exists())
+sys.path.insert(0, str(_root))
 from config import (DATA_RAW, IBD_DIR, RELATED_EXCLUDE,  # noqa: E402
                     CHROMOSOMES)
 
@@ -48,14 +50,39 @@ DEFAULT_POPS = [
 
 
 def load_population_map() -> pd.Series:
-    """Sample ID -> population, from the 1000 Genomes panel file."""
-    panel = DATA_RAW / "metadata" / "integrated_call_samples_v3.20130502.ALL.panel"
-    if not panel.exists():
-        sys.exit(
-            f"Missing {panel}\nRun fig1/00_download_data.sh first."
-        )
-    df = pd.read_csv(panel, sep=r"\s+")
-    return df.set_index("sample")["pop"]
+    """Sample ID -> population, from the 3,202-sample pedigree.
+
+    The pedigree covers the whole 30x release. The phase 3 panel is only a
+    fallback: it lists the 2,504 unrelated samples alone, so any population
+    that gained related individuals in the 30x release would be averaged over
+    the wrong sample set. CEU is the clearest case, being the CEPH collection:
+    118 samples in the pedigree against 90 that survive a panel-based lookup.
+    """
+    meta = DATA_RAW / "metadata"
+    ped = meta / "20130606_g1k_3202_samples_ped_population.txt"
+
+    if ped.exists():
+        df = pd.read_csv(ped, sep=r"\s+")
+        if {"SampleID", "Population"} <= set(df.columns):
+            return df.set_index("SampleID")["Population"]
+        print(f"warning: {ped.name} lacks SampleID/Population columns; "
+              "falling back to the phase 3 panel", file=sys.stderr)
+
+    panel = meta / "integrated_call_samples_v3.20130502.ALL.panel"
+    if panel.exists():
+        print("note: using the phase 3 panel for population labels. It covers "
+              "only the 2,504 unrelated samples, so related individuals in the "
+              "IBD output will be dropped.", file=sys.stderr)
+        return pd.read_csv(panel, sep=r"\s+").set_index("sample")["pop"]
+
+    sys.exit(
+        f"No sample metadata found in {meta}\n"
+        "Fetch the 3,202-sample pedigree:\n"
+        "  mkdir -p data/raw/metadata && wget -P data/raw/metadata \\\n"
+        "    https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/"
+        "1000G_2504_high_coverage/working/"
+        "20130606_g1k_3202_samples_ped_population.txt"
+    )
 
 
 def load_related_samples() -> set:

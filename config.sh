@@ -52,7 +52,13 @@ export HAPIBD_JAR="${HAPIBD_JAR:-$DATA_RAW/tools/hap-ibd.jar}"
 # PLINK-format genetic maps in cM for GRCh38, one per chromosome.
 # Available from the Beagle genetic maps page; see ibd/00_setup_resources.sh.
 export GENETIC_MAP_DIR="${GENETIC_MAP_DIR:-$DATA_RAW/genetic_maps}"
-export GENETIC_MAP_TEMPLATE="${GENETIC_MAP_TEMPLATE:-plink.chr{CHROM}.GRCh38.map}"
+# Assigned with an if rather than ${VAR:-default}: the default contains
+# {CHROM}, and that inner brace closes the expansion early, so the variable
+# would be exported already mangled as plink.chr{CHROM.GRCh38.map}.
+if [[ -z "${GENETIC_MAP_TEMPLATE:-}" ]]; then
+  GENETIC_MAP_TEMPLATE='plink.chr{CHROM}.GRCh38.map'
+fi
+export GENETIC_MAP_TEMPLATE
 
 # hap-ibd output: kgp_chr<N>_segments.ibd.gz
 export IBD_DIR="${IBD_DIR:-$DATA_PROCESSED/ibd}"
