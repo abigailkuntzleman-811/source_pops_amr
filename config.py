@@ -82,6 +82,11 @@ GENETIC_MAP_DIR = _path("GENETIC_MAP_DIR", DATA_RAW / "genetic_maps")
 _related = os.environ.get("RELATED_EXCLUDE", "").strip()
 RELATED_EXCLUDE = Path(_related) if _related else None
 
+# --- Simulations (Figure 6) ---
+DEMES_DIR = _path("DEMES_DIR", PROJECT_ROOT / "data" / "demographic_models")
+SIM_DIR = _path("SIM_DIR", DATA_PROCESSED / "simulations")
+SIM_REPS = int(os.environ.get("SIM_REPS", 100))
+
 # --- Analysis parameters ----------------------------------------------------
 # Minimum hmmix mean posterior probability for a segment to be retained.
 HMMIX_MIN_PROB = float(os.environ.get("HMMIX_MIN_PROB", 0.80))

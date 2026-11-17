@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+# Slurm wrapper: simulate replicates of one scenario.
+#
+#     mkdir -p logs
+#     sbatch --array=1-100 figure_code/fig6/01_simulate.script eur_donor
+#
+#SBATCH -J simulate
+#SBATCH -t 12:00:00
+#SBATCH -n 1
+#SBATCH --mem=16G
+#SBATCH -o logs/simulate_%a.out
+#SBATCH -e logs/simulate_%a.err
+#SBATCH --mail-type=FAIL
+
+set -euo pipefail
+
+find_repo_root() {
+  local candidate
+  for candidate in "$(dirname "${BASH_SOURCE[0]}")/../.." \
+                   "${SLURM_SUBMIT_DIR:-}" "${SLURM_SUBMIT_DIR:-}/.." \
+                   "$PWD" "$PWD/.."; do
+    if [[ -n "$candidate" && -f "$candidate/config.sh" ]]; then
+      (cd "$candidate" && pwd)
+      return 0
+    fi
+  done
+  echo "ERROR: could not find config.sh. Submit from the repository root," >&2
+  echo "       or set REPO_ROOT to the repository path." >&2
+  exit 1
+}
+REPO_ROOT="${REPO_ROOT:-$(find_repo_root)}"
+source "$REPO_ROOT/config.sh"
+
+if [[ -n "${VENV_ACTIVATE:-}" ]]; then
+  source "$VENV_ACTIVATE"
+fi
+
+SCENARIO="${1:?usage: sbatch --array=1-100 01_simulate.script <scenario>}"
+POP="${2:-MXL}"
+
+python3 "$REPO_ROOT/figure_code/fig6/01_simulate.py" \
+        "$SCENARIO" "${SLURM_ARRAY_TASK_ID:?set --array}" --pop "$POP"

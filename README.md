@@ -232,6 +232,49 @@ and saved to `results/tables/`.
 
 ---
 
+## Figure 6 — simulated IBD against European admixture proportion
+
+Four demographic scenarios differing in how European ancestry entered the
+admixed population, each simulated for 100 replicates, fitted separately and
+drawn as a progressive reveal.
+
+```bash
+mkdir -p logs
+for s in no_bottleneck_donor eur_donor mxl_double_donor_recent mxl_donor6; do
+  sbatch --array=1-100 figure_code/fig6/01_simulate.script "$s"
+done
+
+# one source population per scenario; see figure_code/fig6/scenarios.py
+sbatch --array=1-100 figure_code/fig6/02_extract_tracts.script no_bottleneck_donor IBS
+sbatch --array=1-100 figure_code/fig6/02_extract_tracts.script eur_donor IBS_DONOR
+
+# scenarios with several donors: extract each, then merge
+python figure_code/fig6/03_merge_donor_tracts.py mxl_double_donor_recent 1 --sources 8 9
+
+python figure_code/fig6/04_collect_stats.py       # the expensive step
+python figure_code/fig6/05_plot_progressive.py    # -> results/figures/
+```
+
+`figure_code/fig6/scenarios.py` holds the mapping from scenario to
+demographic model, source population, tract filename and plot styling. The
+directory names are historical: `no_bottleneck_donor` is the *standard*
+scenario, with no donor population at all.
+
+| Paper item | Command |
+|---|---|
+| Figure 6 | `python figure_code/fig6/05_plot_progressive.py` |
+
+### A note on tract merging
+
+Ancestry tracts are extracted from the recorded migrations and stitched into
+contiguous intervals. Intervals are sorted by position and overlapping ones
+merged; without that, a haplotype covered by several migration records yields
+overlapping tracts whose lengths are counted twice, and ancestry proportions
+can exceed 1. `02_extract_tracts.py --no-merge` reproduces the unmerged
+behaviour for comparison.
+
+---
+
 ## Table 1 — admixture proportion and shared archaic ancestry
 
 Reuses the pairwise sharing output from Figure 1, so run `figure_code/fig1/00`–`figure_code/fig1/03`
@@ -286,6 +329,13 @@ figure_code/fig3/                        Figure 3, needs fig1 and hapIBD_calls o
 fig4/                        Figure 4, needs LAI_DIR and hapIBD_calls output
   01_individual_ibd.py         average IBD per individual
   02_plot_admix_vs_ibd.py      admixture proportion against IBD
+fig6/                        Figure 6, coalescent simulations
+  scenarios.py                 scenario definitions and styling
+  01_simulate.py/.script       msprime simulation from a demes model
+  02_extract_tracts.py/.script ancestry tracts from recorded migrations
+  03_merge_donor_tracts.py     combine tracts across donor populations
+  04_collect_stats.py          per-individual IBD and ancestry proportion
+  05_plot_progressive.py       fits and the progressive-reveal figure
 hapIBD_calls/                IBD calling with hap-ibd
   00_setup_resources.sh      downloads hap-ibd.jar
   01_call_ibd.sh/.script     filter the panel and call IBD, per chromosome

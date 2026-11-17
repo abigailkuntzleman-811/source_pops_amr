@@ -1,0 +1,50 @@
+#!/bin/bash
+#
+# Slurm wrapper: extract ancestry tracts for replicates of one scenario.
+#
+#     mkdir -p logs
+#     sbatch --array=1-100 figure_code/fig6/02_extract_tracts.script eur_donor
+#
+# For a scenario with several donor populations, pass the source population
+# name as the third argument and run once per donor, then merge with
+# 03_merge_donor_tracts.py.
+#
+#SBATCH -J extract_tracts
+#SBATCH -t 12:00:00
+#SBATCH -n 1
+#SBATCH --mem=32G
+#SBATCH -o logs/extract_tracts_%a.out
+#SBATCH -e logs/extract_tracts_%a.err
+#SBATCH --mail-type=FAIL
+
+set -euo pipefail
+
+find_repo_root() {
+  local candidate
+  for candidate in "$(dirname "${BASH_SOURCE[0]}")/../.." \
+                   "${SLURM_SUBMIT_DIR:-}" "${SLURM_SUBMIT_DIR:-}/.." \
+                   "$PWD" "$PWD/.."; do
+    if [[ -n "$candidate" && -f "$candidate/config.sh" ]]; then
+      (cd "$candidate" && pwd)
+      return 0
+    fi
+  done
+  echo "ERROR: could not find config.sh. Submit from the repository root," >&2
+  echo "       or set REPO_ROOT to the repository path." >&2
+  exit 1
+}
+REPO_ROOT="${REPO_ROOT:-$(find_repo_root)}"
+source "$REPO_ROOT/config.sh"
+
+if [[ -n "${VENV_ACTIVATE:-}" ]]; then
+  source "$VENV_ACTIVATE"
+fi
+
+SCENARIO="${1:?usage: sbatch --array=1-100 02_extract_tracts.script <scenario> [source] [pop]}"
+SOURCE="${2:-}"
+POP="${3:-MXL}"
+
+ARGS=("$SCENARIO" "${SLURM_ARRAY_TASK_ID:?set --array}" --pop "$POP")
+[[ -n "$SOURCE" ]] && ARGS+=(--source "$SOURCE")
+
+python3 "$REPO_ROOT/figure_code/fig6/02_extract_tracts.py" "${ARGS[@]}"

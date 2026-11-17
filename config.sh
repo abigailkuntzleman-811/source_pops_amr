@@ -71,6 +71,17 @@ export RELATED_EXCLUDE="${RELATED_EXCLUDE:-}"
 # Minimum MAF for a variant to enter IBD calling.
 export IBD_MIN_MAF="${IBD_MIN_MAF:-0.05}"
 
+# --- Simulations (Figure 6) ---
+# Demographic models in demes YAML format.
+export DEMES_DIR="${DEMES_DIR:-$PROJECT_ROOT/data/demographic_models}"
+
+# Root of the simulation output: one subdirectory per scenario, each with
+# tree_seqs/ and admix_csvs/.
+export SIM_DIR="${SIM_DIR:-$DATA_PROCESSED/simulations}"
+
+# Replicates per scenario.
+export SIM_REPS="${SIM_REPS:-100}"
+
 # --- Analysis parameters ----------------------------------------------------
 # Minimum hmmix mean posterior probability for a segment to be retained.
 export HMMIX_MIN_PROB="${HMMIX_MIN_PROB:-0.80}"
