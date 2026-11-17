@@ -205,6 +205,33 @@ Also writes `results/tables/archaic_share_vs_ibd.csv` with the plotted values.
 
 ---
 
+## Figure 4 — admixture proportion against per-individual IBD
+
+Each point is an individual: their proportion of a continental ancestry
+against the average cM they share with each other member of their population.
+Needs both the local ancestry data and the hap-ibd output.
+
+```bash
+python table1/00_ancestry_proportions.py            # needs LAI_DIR
+python figure_code/fig4/01_individual_ibd.py        # needs hapIBD_calls output
+python figure_code/fig4/02_plot_admix_vs_ibd.py     # -> results/figures/
+```
+
+`--ancestry AMR` or `--ancestry AFR` plots the other ancestries.
+
+| Paper item | Command |
+|---|---|
+| Figure 4 | `python figure_code/fig4/02_plot_admix_vs_ibd.py` |
+
+The IBD average here is per individual, over the unrelated members of the
+population: total cM shared with everyone else, divided by (n - 1). That is a
+different quantity from Figure 3, which averages over haplotype pairs.
+
+Spearman's rho and the regression p values are reported in the panel titles
+and saved to `results/tables/`.
+
+---
+
 ## Table 1 — admixture proportion and shared archaic ancestry
 
 Reuses the pairwise sharing output from Figure 1, so run `figure_code/fig1/00`–`figure_code/fig1/03`
@@ -256,6 +283,9 @@ figure_code/fig2/                        Figure 2, needs LAI_DIR
 figure_code/fig3/                        Figure 3, needs fig1 and hapIBD_calls output
   01_within_population_ibd.py  within-population IBD per haplotype pair
   02_plot_ibd_vs_archaic.py    archaic sharing against IBD sharing
+fig4/                        Figure 4, needs LAI_DIR and hapIBD_calls output
+  01_individual_ibd.py         average IBD per individual
+  02_plot_admix_vs_ibd.py      admixture proportion against IBD
 hapIBD_calls/                IBD calling with hap-ibd
   00_setup_resources.sh      downloads hap-ibd.jar
   01_call_ibd.sh/.script     filter the panel and call IBD, per chromosome
