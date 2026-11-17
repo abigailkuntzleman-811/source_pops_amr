@@ -37,6 +37,20 @@ sys.path.insert(0, str(_root))
 
 from config import DATA_PROCESSED, FIGURE_DIR, IBD_DIR, TABLE_DIR  # noqa: E402
 
+# Share one definition of who counts as related with the other IBD scripts.
+sys.path.insert(0, str(_root / "figure_code" / "fig3"))
+_load_related_samples = __import__("01_within_population_ibd").load_related_samples
+
+_related_cache = None
+
+
+def load_related_samples() -> set:
+    """Related sample IDs, read once and reused across panels."""
+    global _related_cache
+    if _related_cache is None:
+        _related_cache = _load_related_samples()
+    return _related_cache
+
 # Panel order as in the paper. Titles use the population codes.
 POP_LABELS = {
     "CLM": "CLM",
@@ -83,10 +97,30 @@ def load_panel_data(pop: str, ancestry: str, unit: str) -> pd.DataFrame:
     ibd = pd.read_csv(ibd_path)
     ibd = ibd[ibd["pop"] == pop].set_index("individual")["avg_inpop_ibd"]
 
+    # Drop related individuals explicitly rather than relying on their absence
+    # from the IBD file. They have ancestry calls but were excluded upstream,
+    # so a join leaves them missing; filling that with zero would plot them as
+    # sharing no IBD with anyone, which is not a measurement.
+    related = load_related_samples()
+    excluded = sorted(set(props.index) & related)
+    if excluded:
+        print(f"{pop}: excluding {len(excluded)} related individual(s): "
+              f"{', '.join(excluded)}", file=sys.stderr)
+        props = props.loc[~props.index.isin(related)]
+
     df = pd.DataFrame({
         "prop": props[column],
         "avg_inpop_ibd": ibd.reindex(props.index),
     })
+
+    # Anyone still missing has ancestry calls but no IBD record at all, which
+    # should not happen once related individuals are removed.
+    missing = df[df["avg_inpop_ibd"].isna()]
+    if not missing.empty:
+        print(f"{pop}: warning, {len(missing)} individual(s) have ancestry "
+              f"calls but no IBD value and are dropped: "
+              f"{', '.join(missing.index[:5])}", file=sys.stderr)
+
     return df.dropna()
 
 
