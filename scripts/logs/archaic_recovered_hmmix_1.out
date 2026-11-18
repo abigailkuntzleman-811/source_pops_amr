@@ -1,9 +1,9 @@
 ## SLURM PROLOG ###############################################################
-##    Job ID : 3243721
+##    Job ID : 9285568
 ##  Job Name : archaic_recovered_hmmix
-##  Nodelist : node2347
+##  Nodelist : node1802
 ##      CPUs : 1
 ##  Mem/Node : 20480 MB
 ## Directory : /oscar/home/akuntzle/source_pops_amr/scripts
-##   Job Started : Mon Jun 15 03:05:57 PM EDT 2026
+##   Job Started : Wed Nov 18 11:29:15 EST 2026
 ###############################################################################

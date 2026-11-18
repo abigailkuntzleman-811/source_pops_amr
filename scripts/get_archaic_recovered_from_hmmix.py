@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import pyranges as pr
 import argparse
+import numpy as np
+
 
 parser = argparse.ArgumentParser()
 
@@ -12,6 +14,8 @@ args = parser.parse_args()
 
 filename = args.filename
 nean_type = args.nean_type
+
+rng = np.random.default_rng(42)
 
 
 hmmix_nean = pd.read_csv(filename)
@@ -26,21 +30,7 @@ pur_inds = pur_nean['name'].unique()
 pel_inds = pel_nean['name'].unique()
 mxl_inds = mxl_nean['name'].unique()
 
-# def get_archaic_recovered_from_hmmix(pop_df, inds):
-#     total_seq = 0
-#     for i in range(1, 23):
-#         total_tree = IntervalTree()
-#         for ind in inds:
-#             for hap in [1, 2]:
-#                 these_inds = pop_df[(pop_df['name'] == ind) & (pop_df['chrom'] == f'chr{i}') & (pop_df['haplotype'] == f'hap{hap}')]
-#                 for _, row in these_inds.iterrows():
-#                     total_tree[row['start']:row['end']] = True
-#         total_tree.merge_overlaps()
-#         total_seq += sum(interval.end - interval.begin for interval in total_tree)
-
-#     return total_seq
-
-# import pyranges as pr
+min_number = min(len(clm_inds), len(pur_inds), len(pel_inds), len(mxl_inds))
 
 def get_archaic_recovered_from_hmmix(pop_df, inds):
     chroms = [f'chr{i}' for i in range(1, 23)]
@@ -53,7 +43,7 @@ def get_archaic_recovered_from_hmmix(pop_df, inds):
     gr = pr.PyRanges(df[['Chromosome', 'Start', 'End']])
     merged = gr.merge()
 
-    return merged.lengths().sum()
+    return merged
 
 
 pops = ['CLM', 'PUR', 'PEL', 'MXL']
@@ -64,7 +54,14 @@ for id_set in range(len(pop_ids)):
     y = []
     for i in range(1, len(pop_ids[id_set]) + 1):
         x.append(i)
-        y.append(get_archaic_recovered_from_hmmix(pop_dfs[id_set], pop_ids[id_set][:i]))
+        y.append(get_archaic_recovered_from_hmmix(pop_dfs[id_set], pop_ids[id_set][:i]).lengths().sum())
     with open(f'/users/akuntzle/IBD_archaic_shared/data/recovered_archaic_by_admix_prop/{pops[id_set]}_total_{nean_type}_recovered_from_hmmix_pyranges.txt', 'w') as f:
         f.write("x: " + ", ".join(map(str, x)) + "\n")
         f.write("y: " + ", ".join(map(str, y)) + "\n")
+    sampled = rng.choice(np.sort(pop_ids[id_set]), size=min_number, replace=False)
+    merged = get_archaic_recovered_from_hmmix(pop_dfs[id_set], sampled)
+    pd.DataFrame({'chrom': merged.Chromosome, 'start': merged.Start, 'end': merged.End}).to_csv(
+        f'/users/akuntzle/IBD_archaic_shared/data/recovered_archaic_by_admix_prop/{pops[id_set]}_n{min_number}_recovered_{nean_type}.bed',
+        sep='\t', header=False, index=False)
+    with open(f'/users/akuntzle/IBD_archaic_shared/data/recovered_archaic_by_admix_prop/{pops[id_set]}_n{min_number}_recovered_{nean_type}_samples.txt', 'w') as f:
+        f.write("\n".join(sorted(sampled)) + "\n")
