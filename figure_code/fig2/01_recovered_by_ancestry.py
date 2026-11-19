@@ -5,13 +5,11 @@ Intersects introgressed segments with local-ancestry tracts, so the archaic
 sequence is partitioned by the continental ancestry of the haplotype carrying
 it, then merges across individuals to give a cumulative recovery curve.
 
-Requires the local ancestry inference BED files, which are NOT public.
-Set LAI_DIR in config.py (or export it) to point at them. Expected layout:
+Inputs (joint-caller BED files, NOT public; set in config.local.sh):
 
-    $LAI_DIR/1kg_lai_global/<POP>.bedlist
-    $LAI_DIR/1kg_bed_files/<POP>_lai.bed
-    $LAI_DIR/1kg_bed_files/chr<N>_<IND>_<HAP>.bed       continental ancestry
-    $LAI_DIR/1kg_arc_bed_files/chr<N>_<IND>_<HAP>.bed   archaic ancestry
+    $ARC_BED_DIR/arc_chr<N>_<IND>_<HAP>.bed   ancestry = introgressed / no_introgressed
+    $LAI_BED_DIR/lai_chr<N>_<IND>_<HAP>.bed   ancestry = continental label (EUR, AMR, ...)
+    $POP_PANEL                                1000 Genomes SampleID -> Population
 
 Usage:
     python fig2/01_recovered_by_ancestry.py <AMR_POP> <CONTINENTAL_ANCESTRY>
@@ -33,78 +31,60 @@ import pyranges as pr
 _root = next(p for p in Path(__file__).resolve().parents
              if (p / "config.py").exists())
 sys.path.insert(0, str(_root))
-from config import CHROMOSOMES, LAI_DIR, RECOVERED_DIR  # noqa: E402
+from config import (ARC_BED_DIR, CHROMOSOMES, LAI_BED_DIR,  # noqa: E402
+                    POP_PANEL, RECOVERED_DIR)
 
 RENAME = {"chrom": "Chromosome", "start": "Start", "end": "End"}
 
 
 def population_individuals(amr_pop: str) -> list:
-    """Read the individual IDs for a population from its bedlist."""
-    bedlist = LAI_DIR / "1kg_lai_global" / f"{amr_pop}.bedlist"
-    if not bedlist.exists():
-        sys.exit(
-            f"Missing input: {bedlist}\n"
-            "These local ancestry files are not public; set LAI_DIR in config.py."
-        )
-    ids = set()
-    n_lines = 0
-    with open(bedlist) as f:
-        for line in f:
-            if not line.strip():
-                continue
-            n_lines += 1
-            parts = line.strip().split("_")
-            if len(parts) > 3:
-                ids.add(parts[3])
-
-    # The sample ID is the fourth underscore-separated field of the filename.
-    # If that assumption breaks, many lines collapse onto a few IDs and the
-    # analysis silently runs on the wrong sample set, so check rather than
-    # trust it.
+    """Individual IDs for a population, from the 1000 Genomes sample panel."""
+    if not POP_PANEL.exists():
+        sys.exit(f"Missing input: {POP_PANEL}\nSet POP_PANEL in config.local.sh.")
+    panel = pd.read_csv(POP_PANEL, sep=" ")
+    ids = sorted(panel.loc[panel["Population"] == amr_pop, "SampleID"].unique())
     if not ids:
-        sys.exit(f"No sample IDs parsed from {bedlist} ({n_lines} lines read).")
-    if n_lines and len(ids) < max(2, n_lines // 100):
-        sys.exit(
-            f"Only {len(ids)} sample ID(s) parsed from {n_lines} lines in "
-            f"{bedlist}: {sorted(ids)[:5]}\n"
-            "The filename format has probably changed; this script expects the "
-            "sample ID in the fourth underscore-separated field."
-        )
-
-    return sorted(ids)
+        sys.exit(f"No individuals with Population == {amr_pop} in {POP_PANEL}")
+    return ids
 
 
-def recovered_in_ancestry(individuals, continental_ancestry: str) -> int:
-    """Unique bp that is both archaic and of the given continental ancestry."""
-    total = 0
+def read_tracts(path: Path, ancestry: str) -> pd.DataFrame:
+    """Rows of a per-haplotype BED file with the given ancestry label."""
+    bed = pd.read_csv(path, sep="\t")
+    return bed[bed["ancestry"] == ancestry].rename(columns=RENAME)
 
+
+def archaic_in_ancestry(ind: str, continental_ancestry: str, labels_seen: set):
+    """One individual's archaic sequence on tracts of the given ancestry.
+
+    Returns a PyRanges over all autosomes and both haplotypes (unmerged), or
+    None if the individual has no files. Haplotype suffixes are taken from the
+    LAI filenames, and each must have a matching archaic file.
+    """
+    pieces = []
+    n_pairs = 0
     for chrom in CHROMOSOMES:
-        overlaps = []
-        for hap in (1, 2):
-            for ind in individuals:
-                arc_file = LAI_DIR / "1kg_arc_bed_files" / f"{chrom}_{ind}_{hap}.bed"
-                anc_file = LAI_DIR / "1kg_bed_files" / f"{chrom}_{ind}_{hap}.bed"
-                if not (arc_file.exists() and anc_file.exists()):
-                    continue
+        for lai_file in sorted(LAI_BED_DIR.glob(f"lai_{chrom}_{ind}_*.bed")):
+            hap = lai_file.stem.rsplit("_", 1)[1]
+            arc_file = ARC_BED_DIR / f"arc_{chrom}_{ind}_{hap}.bed"
+            if not arc_file.exists():
+                sys.exit(f"{lai_file.name} has no matching archaic file {arc_file}")
+            n_pairs += 1
 
-                arc = pd.read_csv(arc_file, sep="\t")
-                arc = arc[arc["ancestry"] == "introgressed"].rename(columns=RENAME)
+            anc = pd.read_csv(lai_file, sep="\t")
+            labels_seen.update(anc["ancestry"].astype(str).unique())
+            anc = anc[anc["ancestry"] == continental_ancestry].rename(columns=RENAME)
+            arc = read_tracts(arc_file, "introgressed")
+            if arc.empty or anc.empty:
+                continue
 
-                anc = pd.read_csv(anc_file, sep="\t")
-                anc = anc[anc["ancestry"] == continental_ancestry].rename(columns=RENAME)
+            pieces.append(pr.PyRanges(arc[["Chromosome", "Start", "End"]])
+                          .intersect(pr.PyRanges(anc[["Chromosome", "Start", "End"]])))
 
-                if arc.empty or anc.empty:
-                    continue
-
-                overlaps.append(pr.PyRanges(arc).intersect(pr.PyRanges(anc)))
-
-        if not overlaps:
-            continue
-
-        merged = pr.concat(overlaps).merge()
-        total += int((merged.End - merged.Start).sum())
-
-    return total
+    if n_pairs == 0:
+        return None
+    pieces = [p for p in pieces if len(p) > 0]
+    return pr.concat(pieces) if pieces else pr.PyRanges()
 
 
 def main() -> None:
@@ -115,14 +95,36 @@ def main() -> None:
 
     RECOVERED_DIR.mkdir(parents=True, exist_ok=True)
 
-    individuals = population_individuals(args.amr_pop)
-    print(f"{args.amr_pop}: {len(individuals)} individuals")
+    panel_ids = population_individuals(args.amr_pop)
+
+    # Each individual's files are read once; the curve is then built by adding
+    # one individual at a time to a running merged set.
+    per_ind, labels_seen, no_files = [], set(), []
+    for ind in panel_ids:
+        ranges = archaic_in_ancestry(ind, args.continental_ancestry, labels_seen)
+        if ranges is None:
+            no_files.append(ind)
+        else:
+            per_ind.append((ind, ranges))
+
+    print(f"{args.amr_pop}: {len(per_ind)} of {len(panel_ids)} panel individuals have files")
+    if no_files:
+        print(f"  no files for: {', '.join(no_files[:10])}"
+              f"{' ...' if len(no_files) > 10 else ''}")
+    if not per_ind:
+        sys.exit(f"No lai_chr*_<IND>_*.bed files for {args.amr_pop} in {LAI_BED_DIR}")
+    if args.continental_ancestry not in labels_seen:
+        sys.exit(f"Ancestry label {args.continental_ancestry!r} never appears in the "
+                 f"LAI files; labels found: {sorted(labels_seen)}")
 
     counts, recovered = [], []
-    for i in range(1, len(individuals) + 1):
+    running = pr.PyRanges()
+    for i, (ind, ranges) in enumerate(per_ind, start=1):
+        if len(ranges) > 0:
+            running = pr.concat([running, ranges]).merge() if len(running) > 0 else ranges.merge()
         counts.append(i)
-        recovered.append(recovered_in_ancestry(individuals[:i], args.continental_ancestry))
-        print(f"  {i}/{len(individuals)}: {recovered[-1]:,} bp", flush=True)
+        recovered.append(int(running.lengths().sum()) if len(running) > 0 else 0)
+        print(f"  {i}/{len(per_ind)} {ind}: {recovered[-1]:,} bp", flush=True)
 
     out = (RECOVERED_DIR /
            f"{args.amr_pop}_only_{args.continental_ancestry}_archaic_recovered.txt")

@@ -16,6 +16,12 @@
 # tract files described in fig2/01_recovered_by_ancestry.py.
 # export LAI_DIR="/path/to/local_ancestry"
 
+# Joint-caller archaic and local ancestry BED files, and the 1000 Genomes
+# sample panel, used by figure_code/fig2/01_recovered_by_ancestry.py.
+# export ARC_BED_DIR="/path/to/autosome_arc_bedfiles"
+# export LAI_BED_DIR="/path/to/autosome_lai_bedfiles"
+# export POP_PANEL="/path/to/20130606_g1k_3202_samples_ped_population.txt"
+
 # Override any other path from config.sh the same way, for example to keep
 # large intermediates off a quota-limited home directory:
 # export DATA_PROCESSED="$HOME/scratch/source_pops_amr/processed"

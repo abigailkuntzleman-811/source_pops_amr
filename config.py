@@ -58,6 +58,16 @@ HMMIX_DIR = _path("HMMIX_DIR", DATA_RAW / "skov_archaic")
 # NOTE: not publicly available. Point this at wherever you have them.
 LAI_DIR = _path("LAI_DIR", DATA_RAW / "local_ancestry")
 
+# Joint-caller per-haplotype BED files, one file per chromosome/individual/haplotype:
+#   ARC_BED_DIR/arc_chr<N>_<IND>_<HAP>.bed   ancestry = introgressed / no_introgressed
+#   LAI_BED_DIR/lai_chr<N>_<IND>_<HAP>.bed   ancestry = continental label (EUR, AMR, ...)
+# NOTE: not publicly available. Point these at wherever you have them.
+ARC_BED_DIR = _path("ARC_BED_DIR", DATA_RAW / "autosome_arc_bedfiles")
+LAI_BED_DIR = _path("LAI_BED_DIR", DATA_RAW / "autosome_lai_bedfiles")
+
+# 1000 Genomes sample panel (space-separated, with SampleID and Population columns).
+POP_PANEL = _path("POP_PANEL", DATA_RAW / "20130606_g1k_3202_samples_ped_population.txt")
+
 # --- Outputs ----------------------------------------------------------------
 DATA_PROCESSED = _path("DATA_PROCESSED", PROJECT_ROOT / "data" / "processed")
 RESULTS_DIR = _path("RESULTS_DIR", PROJECT_ROOT / "results")

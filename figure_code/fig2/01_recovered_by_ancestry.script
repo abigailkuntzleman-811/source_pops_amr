@@ -5,7 +5,8 @@
 #
 #     sbatch --array=0-7 fig2/01_recovered_by_ancestry.script
 #
-# Requires the local ancestry inference files; set LAI_DIR in config.sh.
+# Requires the joint-caller BED files; set ARC_BED_DIR, LAI_BED_DIR and
+# POP_PANEL in config.local.sh.
 #
 #SBATCH -J recovered_by_ancestry
 #SBATCH -t 12:00:00

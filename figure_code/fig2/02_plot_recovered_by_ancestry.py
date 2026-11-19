@@ -7,7 +7,7 @@ American-ancestry haplotypes (triangles), as more individuals are sampled.
 Reproduces Chapter_1.ipynb cell 25.
 
 Prerequisite: fig2/01_recovered_by_ancestry.py for each population and
-ancestry, which requires the local ancestry inference files (LAI_DIR).
+ancestry, which requires the joint-caller BED files (ARC_BED_DIR, LAI_BED_DIR).
 
 Usage:
     python fig2/02_plot_recovered_by_ancestry.py
@@ -87,7 +87,7 @@ def main() -> None:
 
     if missing:
         print(f"warning: missing curves for {', '.join(missing)};\n"
-              f"         run fig2/01_recovered_by_ancestry.py (needs LAI_DIR)",
+              f"         run fig2/01_recovered_by_ancestry.py (needs ARC_BED_DIR, LAI_BED_DIR)",
               file=sys.stderr)
 
     handles = [h for a in args.ancestries for h in handles_by_ancestry[a]]
