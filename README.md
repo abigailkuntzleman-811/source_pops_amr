@@ -242,6 +242,7 @@ Needs the msprime simulations of each model; set `SIM_DIR` in
 python figure_code/fig6/01_plot_donor_ibd.py                # -> results/figures/, one PNG per step
 python figure_code/fig6/compare_original_vs_fixed.py        # optional: old vs fixed IBD side by side
 python figure_code/fig6/02_plot_donor_vs_standard_all_pops.py   # Figure S9: donor vs standard, 4 populations
+python figure_code/fig6/03_plot_sim_ibd_per_pair.py           # Figure S5: IBD per pair, standard model
 ```
 
 IBD in the simulations is computed by `figure_code/fig6/sim_ibd.py`. tskit

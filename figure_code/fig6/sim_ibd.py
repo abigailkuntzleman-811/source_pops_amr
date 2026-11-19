@@ -79,3 +79,34 @@ def ibd_per_individual_original(ts, pop):
         ibd[node_to_ind[n1]] += bp / BP_PER_CM
         ibd[node_to_ind[n2]] += bp / BP_PER_CM
     return ibd
+
+
+def ibd_pairs(ts, pop, min_cm=MIN_CM, max_time=MAX_TIME):
+    """Total IBD (cM) for every pair of individuals in `pop`, 0 if they share none.
+
+    Same tract definition as ibd_per_individual. With haploid samples, each
+    individual is one haplotype, so these are haplotype pairs.
+    """
+    from itertools import combinations
+
+    pop_id = _pop_id(ts, pop)
+    inds = [ind.id for ind in ts.individuals()
+            if ts.node(ind.nodes[0]).population == pop_id]
+    node_to_ind = {n: i for i in inds for n in ts.individual(i).nodes}
+
+    segments = ts.ibd_segments(within=list(node_to_ind), max_time=max_time,
+                               store_segments=True)
+    ibd = {pair: 0.0 for pair in combinations(sorted(inds), 2)}
+    for (n1, n2), seg_list in segments.items():
+        i1, i2 = node_to_ind[n1], node_to_ind[n2]
+        if i1 == i2:
+            continue
+        tracts = []
+        for s in sorted(seg_list, key=lambda s: s.left):
+            if tracts and tracts[-1][1] == s.left:
+                tracts[-1][1] = s.right
+            else:
+                tracts.append([s.left, s.right])
+        ibd[(min(i1, i2), max(i1, i2))] += sum(
+            (r - l) / BP_PER_CM for l, r in tracts if (r - l) / BP_PER_CM >= min_cm)
+    return list(ibd.values())
