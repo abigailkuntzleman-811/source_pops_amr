@@ -14,12 +14,14 @@ Two units are available, because they give different standard deviations:
 Means are nearly identical either way; only the spread differs. Use whichever
 matches the published table, and say which in the methods.
 
-INPUT: local ancestry inference BED files. These are not publicly available.
-Set LAI_DIR in config.py / config.sh to wherever you have them. Expected:
+INPUT: joint-caller local ancestry BED files. These are not publicly
+available. Set LAI_BED_DIR in config.local.sh to wherever you have them.
+Expected, one file per population:
 
-    $LAI_DIR/1kg_bed_files/<POP>_lai.bed
+    $LAI_BED_DIR/<POP>_lai.bed
 
-with columns name, haplotype, chrom, start, end, ancestry.
+with columns chrom, start, end, ancestry, name, haplotype (pop optional).
+Every individual in the file is used, related individuals included.
 
 Usage:
     python table1/00_ancestry_proportions.py
@@ -37,13 +39,13 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from config import AMR_POPS, DATA_PROCESSED, LAI_DIR  # noqa: E402
+from config import AMR_POPS, DATA_PROCESSED, LAI_BED_DIR  # noqa: E402
 
 OUT_DIR = DATA_PROCESSED / "ancestry_proportions"
 
 
 def lai_path(pop: str) -> Path:
-    return LAI_DIR / "1kg_bed_files" / f"{pop}_lai.bed"
+    return LAI_BED_DIR / f"{pop}_lai.bed"
 
 
 def ancestry_proportions(pop: str, unit: str) -> pd.DataFrame:
@@ -85,11 +87,11 @@ def main() -> None:
                         choices=["individual", "haplotype"])
     args = parser.parse_args()
 
-    if not (LAI_DIR / "1kg_bed_files").is_dir():
+    if not LAI_BED_DIR.is_dir():
         sys.exit(
-            f"Local ancestry files not found under {LAI_DIR}.\n"
-            "These data are not public. Set LAI_DIR in config.py or export it:\n"
-            "    export LAI_DIR=/path/to/local_ancestry"
+            f"Local ancestry files not found under {LAI_BED_DIR}.\n"
+            "These data are not public. Set LAI_BED_DIR in config.local.sh or export it:\n"
+            "    export LAI_BED_DIR=/path/to/autosome_lai_bedfiles"
         )
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)

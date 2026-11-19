@@ -212,7 +212,7 @@ against the average cM they share with each other member of their population.
 Needs both the local ancestry data and the hap-ibd output.
 
 ```bash
-python table1/00_ancestry_proportions.py            # needs LAI_DIR
+python table1/00_ancestry_proportions.py            # needs LAI_BED_DIR
 python figure_code/fig4/01_individual_ibd.py        # needs hapIBD_calls output
 python figure_code/fig4/02_plot_admix_vs_ibd.py     # -> results/figures/
 ```
@@ -238,7 +238,7 @@ Reuses the pairwise sharing output from Figure 1, so run `figure_code/fig1/00`â€
 first.
 
 ```bash
-python table1/00_ancestry_proportions.py          # needs LAI_DIR (see below)
+python table1/00_ancestry_proportions.py          # needs LAI_BED_DIR (see below)
 python table1/01_table1_values.py                 # -> results/tables/
 ```
 
@@ -249,12 +249,15 @@ The table in the paper reports per-individual values.
 
 ### Local ancestry inference â€” not public
 
-`table1/00_ancestry_proportions.py` needs local ancestry inference BED files
-that are not publicly available. Point `LAI_DIR` at them:
+`table1/00_ancestry_proportions.py` needs the joint-caller local ancestry BED
+files, which are not publicly available. Point `LAI_BED_DIR` at them:
 
 ```bash
-export LAI_DIR=/path/to/local_ancestry      # expects 1kg_bed_files/<POP>_lai.bed
+export LAI_BED_DIR=/path/to/autosome_lai_bedfiles   # expects <POP>_lai.bed
 ```
+
+Table 1 uses every individual in those files, related individuals included.
+Figure 4 drops related individuals itself.
 
 Without them, that step stops with an explanatory message and
 `01_table1_values.py` still produces the shared-ancestry column, which depends
@@ -277,20 +280,20 @@ config.py, config.sh         all paths and parameters
   pairwise_hmmix.sh          between-population comparisons
   pairwise_within_hmmix.sh   within-population comparisons
   04_heatmap.py              builds the matrix and draws the figure
-figure_code/fig2/                        Figure 2, needs LAI_DIR
+figure_code/fig2/                        Figure 2, needs ARC_BED_DIR and LAI_BED_DIR
   01_recovered_by_ancestry.py   recovery curves per population and ancestry
   02_plot_recovered_by_ancestry.py  draws the figure
 figure_code/fig3/                        Figure 3, needs fig1 and hapIBD_calls output
   01_within_population_ibd.py  within-population IBD per haplotype pair
   02_plot_ibd_vs_archaic.py    archaic sharing against IBD sharing
-fig4/                        Figure 4, needs LAI_DIR and hapIBD_calls output
+fig4/                        Figure 4, needs LAI_BED_DIR and hapIBD_calls output
   01_individual_ibd.py         average IBD per individual
   02_plot_admix_vs_ibd.py      admixture proportion against IBD
 hapIBD_calls/                IBD calling with hap-ibd
   00_setup_resources.sh      downloads hap-ibd.jar
   01_call_ibd.sh/.script     filter the panel and call IBD, per chromosome
 table1/                      Table 1, reuses fig1 steps 00-03
-  00_ancestry_proportions.py continental ancestry proportions (needs LAI_DIR)
+  00_ancestry_proportions.py continental ancestry proportions (needs LAI_BED_DIR)
   01_table1_values.py        assembles the table
 data/raw/                    downloaded inputs (not tracked)
 data/processed/              intermediates (not tracked)
