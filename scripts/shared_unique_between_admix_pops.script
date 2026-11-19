@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#SBATCH -J shared_unique_admix
+#SBATCH -t 2:00:00
+#SBATCH -n 1
+#SBATCH --mem=8G
+#SBATCH -o ./logs/shared_unique_admix_%a.out
+#SBATCH -e ./logs/shared_unique_admix_%a.err
+#SBATCH --mail-user=abigail_kuntzleman@brown.edu
+#SBATCH --mail-type=FAIL
+#SBATCH --array=0-2
+
+source ~/introgressedSFS/bin/activate
+
+TYPES=(neanderthal denisovan all)
+ARCHAIC="${TYPES[$SLURM_ARRAY_TASK_ID]}"
+
+echo "Running: $ARCHAIC"
+python3 shared_unique_between_admix_pops.py "$ARCHAIC"
