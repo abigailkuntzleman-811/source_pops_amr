@@ -68,6 +68,10 @@ LAI_BED_DIR = _path("LAI_BED_DIR", DATA_RAW / "autosome_lai_bedfiles")
 # 1000 Genomes sample panel (space-separated, with SampleID and Population columns).
 POP_PANEL = _path("POP_PANEL", DATA_RAW / "20130606_g1k_3202_samples_ped_population.txt")
 
+# msprime simulations of the admixture models (tree sequences and admixture
+# tract tables), one folder per model. Used by Figure 6.
+SIM_DIR = _path("SIM_DIR", DATA_RAW / "simulations_donor_eur")
+
 # --- Outputs ----------------------------------------------------------------
 DATA_PROCESSED = _path("DATA_PROCESSED", PROJECT_ROOT / "data" / "processed")
 RESULTS_DIR = _path("RESULTS_DIR", PROJECT_ROOT / "results")

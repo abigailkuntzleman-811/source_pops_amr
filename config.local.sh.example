@@ -22,6 +22,9 @@
 # export LAI_BED_DIR="/path/to/autosome_lai_bedfiles"
 # export POP_PANEL="/path/to/20130606_g1k_3202_samples_ped_population.txt"
 
+# Simulated admixture models (tree_seqs/ and admix_csvs/ per model), Figure 6.
+# export SIM_DIR="/path/to/simulations_donor_eur"
+
 # Override any other path from config.sh the same way, for example to keep
 # large intermediates off a quota-limited home directory:
 # export DATA_PROCESSED="$HOME/scratch/source_pops_amr/processed"

@@ -40,6 +40,9 @@ export LAI_BED_DIR="${LAI_BED_DIR:-$DATA_RAW/autosome_lai_bedfiles}"
 # 1000 Genomes sample panel, used to assign individuals to populations.
 export POP_PANEL="${POP_PANEL:-$DATA_RAW/20130606_g1k_3202_samples_ped_population.txt}"
 
+# msprime simulations of the admixture models (Figure 6).
+export SIM_DIR="${SIM_DIR:-$DATA_RAW/simulations_donor_eur}"
+
 # --- Outputs ----------------------------------------------------------------
 export DATA_PROCESSED="${DATA_PROCESSED:-$PROJECT_ROOT/data/processed}"
 export RESULTS_DIR="${RESULTS_DIR:-$PROJECT_ROOT/results}"

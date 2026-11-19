@@ -232,6 +232,25 @@ and saved to `results/tables/`.
 
 ---
 
+## Figure 6 — simulated admixture models: admixture proportion against IBD
+
+Needs the msprime simulations of each model; set `SIM_DIR` in
+`config.local.sh` (one folder per model, each with `tree_seqs/` and
+`admix_csvs/`).
+
+```bash
+python figure_code/fig6/01_plot_donor_ibd.py                # -> results/figures/, one PNG per step
+python figure_code/fig6/compare_original_vs_fixed.py        # optional: old vs fixed IBD side by side
+```
+
+IBD in the simulations is computed by `figure_code/fig6/sim_ibd.py`. tskit
+reports shared ancestry in pieces that break wherever the local tree changes,
+so touching pieces are joined into tracts before a 2 cM cutoff (matching
+hap-ibd), counting only shared ancestors from the last 500 generations.
+Applying the cutoff to the raw pieces (tskit's `min_span`) undercounts IBD.
+
+---
+
 ## Table 1 — admixture proportion and shared archaic ancestry
 
 Reuses the pairwise sharing output from Figure 1, so run `figure_code/fig1/00`–`figure_code/fig1/03`
