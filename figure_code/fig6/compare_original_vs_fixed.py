@@ -44,7 +44,7 @@ STYLE, fit = _plot.STYLE, _plot.fit
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pop", default="MXL")
-    parser.add_argument("--reps", type=int, default=100)
+    parser.add_argument("--reps", type=int, default=1000)
     args = parser.parse_args()
 
     data = {m: {"x": [], "original": [], "fixed": []} for m in MODELS}

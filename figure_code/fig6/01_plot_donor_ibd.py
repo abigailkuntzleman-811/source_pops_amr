@@ -9,7 +9,7 @@ its 95% confidence band. IBD is computed with sim_ibd.ibd_per_individual
 (pieces joined before a 2 cM cutoff, in cM); see sim_ibd.py.
 
 Usage:
-    python figure_code/fig6/01_plot_donor_ibd.py                 # MXL, 100 replicates
+    python figure_code/fig6/01_plot_donor_ibd.py                 # MXL, 1000 replicates
     python figure_code/fig6/01_plot_donor_ibd.py --reps 5        # quick look
     python figure_code/fig6/01_plot_donor_ibd.py --ymax 400      # fix the upper y limit (cM)
 
@@ -55,11 +55,25 @@ def fit(x, y):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pop", default="MXL")
-    parser.add_argument("--reps", type=int, default=100)
+    parser.add_argument("--reps", type=int, default=1000)
     parser.add_argument("--ymax", type=float, default=None,
                         help="upper y-axis limit in cM (default: fit all four "
                              "confidence bands, with a little headroom)")
     args = parser.parse_args()
+
+    # Every model must have every replicate, or the models aren't comparable.
+    # Check before starting rather than failing hours in.
+    missing = []
+    for model, (folder, tracts) in MODELS.items():
+        for i in range(1, args.reps + 1):
+            for path in (SIM_DIR / folder / "tree_seqs" / f"{args.pop}_rep{i}.ts.gz",
+                         SIM_DIR / folder / "admix_csvs" / tracts.format(pop=args.pop, i=i)):
+                if not path.exists():
+                    missing.append(path)
+    if missing:
+        sys.exit(f"{len(missing)} input file(s) missing for {args.reps} replicates, e.g.:\n  "
+                 + "\n  ".join(map(str, missing[:5]))
+                 + "\nRun fewer replicates with --reps, or finish the simulations.")
 
     data = {m: {"x": [], "y": []} for m in MODELS}
     slopes = {m: [] for m in MODELS}
