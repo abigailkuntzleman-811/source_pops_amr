@@ -11,7 +11,7 @@ its 95% confidence band. IBD is computed with sim_ibd.ibd_per_individual
 Usage:
     python figure_code/fig6/01_plot_donor_ibd.py                 # MXL, 100 replicates
     python figure_code/fig6/01_plot_donor_ibd.py --reps 5        # quick look
-    python figure_code/fig6/01_plot_donor_ibd.py --ymax 400      # change the y limit
+    python figure_code/fig6/01_plot_donor_ibd.py --ymax 400      # fix the upper y limit (cM)
 
 Output:
     $FIGURE_DIR/<POP>_IBD_progressive_step<N>_<model>.png
@@ -56,8 +56,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pop", default="MXL")
     parser.add_argument("--reps", type=int, default=100)
-    parser.add_argument("--ymax", type=float, default=2,
-                        help="upper y-axis limit in cM (default 2)")
+    parser.add_argument("--ymax", type=float, default=None,
+                        help="upper y-axis limit in cM (default: fit all four "
+                             "confidence bands, with a little headroom)")
     args = parser.parse_args()
 
     data = {m: {"x": [], "y": []} for m in MODELS}
@@ -88,15 +89,21 @@ def main():
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
     table.to_csv(TABLE_DIR / f"{args.pop}_IBD_progressive_slopes.csv", index=False)
 
-    top = max(fits[m][3].max() for m in MODELS)
-    if top > args.ymax:
-        print(f"\nnote: the confidence bands reach {top:.1f} cM, above --ymax {args.ymax}; "
+    # One y range for every step, so the axes don't jump as models are added:
+    # from 0 (or the lowest band, if below 0) to the highest band plus 5%.
+    lowest = min(fits[m][2].min() for m in MODELS)
+    highest = max(fits[m][3].max() for m in MODELS)
+    pad = 0.05 * (highest - min(lowest, 0))
+    ymin = min(0, lowest - pad)
+    ymax = args.ymax if args.ymax is not None else highest + pad
+    if highest > ymax:
+        print(f"\nnote: the confidence bands reach {highest:.1f} cM, above --ymax {ymax}; "
               f"parts of the plot will be cut off", file=sys.stderr)
 
     xmin = min(fits[m][0].min() for m in MODELS)
     xmax = max(fits[m][0].max() for m in MODELS)
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
-    fig, ax = plt.subplots(figsize=(7, 5))
+    fig, ax = plt.subplots(figsize=(9.5, 5))
     for n, current in enumerate(MODELS, start=1):
         ax.clear()
         for m in list(MODELS)[:n]:
@@ -105,10 +112,11 @@ def main():
                     linewidth=2, label=m)
             ax.fill_between(xp, lo, hi, color=STYLE[m]["color"], alpha=0.25)
         ax.set_xlim(xmin, xmax)
-        ax.set_ylim(0, args.ymax)
+        ax.set_ylim(ymin, ymax)
         ax.set_xlabel("European admixture proportion", fontsize=14)
         ax.set_ylabel("IBD shared with other individuals (cM)", fontsize=14)
-        ax.legend(loc="upper left", frameon=False)
+        # outside the axes, so it never covers a band
+        ax.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
         fig.tight_layout()
         out = FIGURE_DIR / f"{args.pop}_IBD_progressive_step{n}_{STYLE[current]['tag']}.png"
         fig.savefig(out, dpi=200)
