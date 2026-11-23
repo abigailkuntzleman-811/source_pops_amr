@@ -10,12 +10,12 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [x] Fig 2: recovered archaic ancestry from EUR/AMR tracts with the new joint-caller LAI calls (already in Overleaf)
 - [x] Mask IBD pileups in the hap-ibd output (`hapIBD_calls/03_mask_pileups.py`; 12 regions, 30.8 Mb)
 - [x] Fig 4, S6, S8: rerun with masked IBD, KING unrelated set and new LAI calls, and upload to Overleaf
-- [ ] S5: simulated IBD per pair with the corrected (joined) IBD (`figure_code/fig6/03_plot_sim_ibd_per_pair.py`), and upload to Overleaf
+- [x] S5: simulated IBD per pair with the corrected (joined) IBD (`figure_code/fig6/03_plot_sim_ibd_per_pair.py`), and upload to Overleaf
 - [x] Fig 3: rerun with masked IBD and KING unrelated set, and upload to Overleaf
 - [x] S7: run `figure_code/figS7_ancestry_aware_ibd/01_ancestry_aware_ibd.py` (masked IBD, new LAI, KING set), new table, and upload to Overleaf
 - [x] S4: masked IBD and KING unrelated set (`figure_code/figS4_ibd_boxplots/01_plot_real_ibd_per_pair.py`), new table, and upload to Overleaf
 - [ ] Fig 6 and S9: rerun with the repo scripts (`figure_code/fig6/01_plot_donor_ibd.py`, `02_plot_donor_vs_standard_all_pops.py`; IBD fix, tract-overlap fix, 1000 replicates) and upload to Overleaf. The current Overleaf Fig 6 is the notebook version (old IBD calculation, 100 replicates)
-- [ ] Upload the remaining regenerated figures to Overleaf (S5, Fig 6, S9)
+- [ ] Upload the remaining regenerated figures to Overleaf (Fig 6, S9)
 
 ## 2. Statistics
 
