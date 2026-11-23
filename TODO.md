@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] Update continental + archaic plots with new numbers
+- [x] Update continental + archaic plots with new numbers
 - [ ] Update admixture prop versus IBD
 - [ ] Update IBD unioned with continental ancestry script with new LAI calls
 - [ ] Add UpSet plot to paper
@@ -12,3 +12,4 @@
 - [ ] Re-do significance test for IBD distributions in real and simulated data
 - [ ] Find shared and unique archaic ancestry from European and Indigenous tracts
 - [ ] Rerun Fig 6 and S9 after the tract-overlap fix (standard and single-donor admixture proportions were overcounted)
+- [ ] Fix interpretation of Fig 2
