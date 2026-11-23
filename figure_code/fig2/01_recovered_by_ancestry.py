@@ -45,6 +45,13 @@ def population_individuals(amr_pop: str) -> list:
     ids = sorted(panel.loc[panel["Population"] == amr_pop, "SampleID"].unique())
     if not ids:
         sys.exit(f"No individuals with Population == {amr_pop} in {POP_PANEL}")
+    # Add individuals in the order they appear in <POP>_lai.bed, as the original
+    # scripts/get_pop_nean_recovered.py did (df['name'].unique()); the curve's
+    # end point does not depend on the order, the points along it do.
+    lai = LAI_BED_DIR / f"{amr_pop}_lai.bed"
+    if lai.exists():
+        order = list(pd.read_csv(lai, sep="\t", usecols=["name"])["name"].unique())
+        ids = [i for i in order if i in set(ids)] + [i for i in ids if i not in set(order)]
     return ids
 
 

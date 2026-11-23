@@ -481,7 +481,6 @@ table1/                       Table 1
 data/demographic_models/      demes models for the simulations
 data/raw/, data/processed/    inputs and intermediates (not tracked)
 results/                      generated figures and tables (not tracked)
-scripts/                      earlier versions, superseded by figure_code/
 Chapter_1.ipynb               full exploratory notebook
 ```
 
