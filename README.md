@@ -272,6 +272,23 @@ and saved to `results/tables/`.
 
 ---
 
+## Figure S7 — ancestry-aware IBD ratio
+
+For each pair of haplotypes from different unrelated individuals, the fraction
+of their shared EUR, AMR or AFR ancestry (bp) that is covered by IBD between
+them. Uses the pileup-masked IBD, the per-population LAI files and the KING
+unrelated set.
+
+```bash
+python figure_code/figS7_ancestry_aware_ibd/01_ancestry_aware_ibd.py
+```
+
+Writes per-pair tables and `ancestry_aware_ibd_summary.csv` to `TABLE_DIR`
+and `ancestry_aware_ibd_ratios.png` to `FIGURE_DIR`. Assumes haplotypes 1 and
+2 mean the same thing in the hap-ibd output and the LAI files.
+
+---
+
 ## Figure 6 — simulated admixture models: admixture proportion against IBD
 
 Needs the msprime simulations of each model; set `SIM_DIR` in
