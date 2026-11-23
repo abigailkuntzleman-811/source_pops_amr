@@ -24,9 +24,11 @@ Steps
   3. Segments (as in Guo et al.): a segment entirely inside a peak is removed.
      A segment partly overlapping a peak has the overlapping part cut out, and
      each remaining piece is kept if it is at least --min-cm long. Piece
-     lengths in cM come from the genetic map used to call IBD; if it cannot be
-     found, they are scaled from the segment's own cM per bp, and the script
-     says so.
+     lengths in cM come from the genetic map used to call IBD where the piece
+     lies within the map's range. Outside it (e.g. before the first map
+     position on acrocentric chromosomes) hap-ibd extrapolates by a rule that
+     cannot be recovered from the map, so there, and if no map is found, they
+     are scaled from the segment's own cM per bp as reported by hap-ibd.
 
 Masked segments are written next to the originals, in the same hap-ibd format:
     $IBD_DIR/kgp_chr<N>_segments.masked.ibd.gz
@@ -150,7 +152,11 @@ def mask_segments(seg, peaks_bp, gmap, min_cm):
             keep = nxt
         kept_any = False
         for a, b in keep:
-            if gmap is not None:
+            # Inside the map, interpolate as hap-ibd does. Outside it (e.g. before
+            # the first map position on acrocentric chromosomes) hap-ibd
+            # extrapolates by a rule we cannot reproduce from the map, so use the
+            # segment's own cM per bp as reported by hap-ibd instead.
+            if gmap is not None and gmap[0][0] <= a and b <= gmap[0][-1]:
                 cm = float(np.interp(b, gmap[0], gmap[1]) - np.interp(a, gmap[0], gmap[1]))
             else:
                 cm = row.cM * (b - a) / (row.end_bp - row.start_bp)
