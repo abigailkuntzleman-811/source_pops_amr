@@ -16,7 +16,7 @@ Usage:
     python figure_code/fig6/03_plot_sim_ibd_per_pair.py --replot     # redraw only, from the saved pairs
 
 Output:
-    $FIGURE_DIR/IBD_boxplots_sims_standard.png
+    $FIGURE_DIR/IBD_simmed_boxplots.png
     $TABLE_DIR/IBD_boxplots_sims_standard.csv
     $TABLE_DIR/IBD_boxplots_sims_standard_pairs.npz   every pair's IBD, for --replot
 """
@@ -30,7 +30,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.ticker import FuncFormatter, LogLocator, NullFormatter
+from matplotlib.ticker import FixedLocator, FuncFormatter, NullLocator
 
 _root = next(p for p in Path(__file__).resolve().parents if (p / "config.py").exists())
 sys.path.insert(0, str(_root))
@@ -116,14 +116,20 @@ def plot(pairs):
     for patch, color in zip(box["boxes"], COLORS):
         patch.set_facecolor(color)
     ax.set_yscale("log")
-    # plain numbers (2, 5, 10, 20, ...) rather than powers of ten
-    ax.yaxis.set_major_locator(LogLocator(base=10, subs=(1.0, 2.0, 5.0)))
+    # plain-number ticks (2, 3, 4, ...) rather than 2x10^0; the log scale stays,
+    # so the spacing between ticks shrinks going up
+    lo, hi = ax.get_ylim()
+    nice = [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50, 75, 100, 150, 200, 300, 500, 1000]
+    ticks = [t for t in nice if lo <= t <= hi]
+    if len(ticks) > 12:        # wide range: keep 1-2-5 steps only
+        ticks = [t for t in ticks if str(t).lstrip("0.")[0] in "125"]
+    ax.yaxis.set_major_locator(FixedLocator(ticks))
     ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y:g}"))
-    ax.yaxis.set_minor_formatter(NullFormatter())
+    ax.yaxis.set_minor_locator(NullLocator())
     ax.set_ylabel("Total IBD (cM) per Pair")
 
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
-    out = FIGURE_DIR / "IBD_boxplots_sims_standard.png"
+    out = FIGURE_DIR / "IBD_simmed_boxplots.png"
     fig.savefig(out, dpi=300, bbox_inches="tight")
     print(f"wrote {out}")
 
