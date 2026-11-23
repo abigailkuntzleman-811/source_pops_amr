@@ -34,6 +34,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 
 - [ ] Fig 2: interpretation; in the new figure PEL's EUR and AMR curves end nearly equal and PEL's AMR curve is above its EUR curve for most of the range
 - [ ] Fig 4 and abstract: after masking, MXL is weakly positive (rho 0.26) and PEL shows no relationship (rho -0.07); the abstract, Results and Fig 4 caption say no correlation for MXL and a weak negative trend for PEL
+- [ ] Fig 4 storyline: PUR and MXL now have the same rho (0.26, p = 0.007 and 0.038); only CLM is strongly positive (0.77). The "CLM and PUR positive vs MXL and PEL not" contrast (abstract, Results, Discussion) needs rethinking: the split is now CLM vs the rest
 - [ ] Fig 6 / S9 framing: the multiple-donor simulations are framed as explaining MXL's lack of a positive correlation; revisit now that MXL is weakly positive
 - [ ] S6 caption: MXL no longer positive (rho -0.23, n.s.)
 - [ ] S8 caption and Results/Discussion: "negatively correlated in all populations" no longer holds for MXL (rho 0.11, n.s.)
