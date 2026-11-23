@@ -26,8 +26,11 @@ import argparse
 import sys
 from pathlib import Path
 
+import math
+
 import matplotlib.pyplot as plt
 import pandas as pd
+from matplotlib.ticker import FuncFormatter
 
 _root = next(p for p in Path(__file__).resolve().parents
              if (p / "config.py").exists())
@@ -90,6 +93,17 @@ def load_ibd_means() -> pd.Series:
     return pd.read_csv(path).set_index("pop")["mean_cM"]
 
 
+def sci_label(x, _pos):
+    """5000000 -> 5 x 10^6 (mathtext)."""
+    if x == 0:
+        return "0"
+    e = int(math.floor(math.log10(abs(x))))
+    m = round(x / 10 ** e, 2)
+    if m == 10:
+        m, e = 1, e + 1
+    return rf"${m:g} \times 10^{{{e}}}$"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--archaic", default="all",
@@ -145,6 +159,11 @@ def main() -> None:
     ax.set_xlim(df["archaic_bp"].min() - 1_000_000,
                 df["archaic_bp"].max() + 1_000_000)
     ax.set_ylim(df["ibd_cM"].min() - 1, df["ibd_cM"].max() + 1)
+    # each tick in scientific notation (e.g. 5 x 10^6) instead of a shared
+    # "1e7" offset in the corner; rotated so the labels fit
+    ax.xaxis.set_major_formatter(FuncFormatter(sci_label))
+    ax.tick_params(axis="x", labelrotation=45)
+    plt.setp(ax.xaxis.get_majorticklabels(), ha="right", rotation_mode="anchor")
     ax.legend(title="Superpopulation", frameon=False)
 
     fig.tight_layout()
