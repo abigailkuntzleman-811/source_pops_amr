@@ -13,3 +13,9 @@
 - [ ] Find shared and unique archaic ancestry from European and Indigenous tracts
 - [ ] Rerun Fig 6 and S9 after the tract-overlap fix (standard and single-donor admixture proportions were overcounted)
 - [ ] Fix interpretation of Fig 2
+- [ ] Fix interpretation of Fig 4, including the caption's "no significant correlation for MXL" (check against final numbers)
+- [ ] Re-check Fig 3 and abstract/Results/Discussion IBD claims (PUR/CLM vs FIN, MXL least IBD, PEL vs East Asians, PEL negative trend) once IBD figures are updated
+- [ ] S4: use the KING unrelated set (its table's pair counts are for full samples, related individuals included)
+- [ ] S9 caption: change 100 to 1000 replicates
+- [ ] Fix cross-references: Discussion `Figure 3\label{archaic_share_ibd}` (\label should be \ref); Discussion sentence on EUR admixture vs IBD cites \ref{eur_amr_recovered} (Fig 2) instead of Fig 4
+- [ ] Methods: resolve the note to Jazeps on PEL counts (89 admixed PEL = 122 total - 33 used as the Indigenous American reference panel)
