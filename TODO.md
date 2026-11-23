@@ -11,7 +11,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [x] Mask IBD pileups in the hap-ibd output (`hapIBD_calls/03_mask_pileups.py`; 12 regions, 30.8 Mb)
 - [x] Fig 4, S6, S8: rerun with masked IBD, KING unrelated set and new LAI calls
 - [x] S5: simulated IBD per pair with the corrected (joined) IBD (`figure_code/fig6/03_plot_sim_ibd_per_pair.py`)
-- [ ] Fig 3: rerun with masked IBD (`figure_code/fig3`; needs the `~/pairwise_links` shortcuts to the hmmix pairwise-sharing files)
+- [x] Fig 3: rerun with masked IBD and KING unrelated set
 - [ ] S7: run `figure_code/figS7_ancestry_aware_ibd/01_ancestry_aware_ibd.py` (masked IBD, new LAI, KING set)
 - [ ] S7: confirm with Jazeps that hap-ibd and the joint caller used the same phased haplotypes (haplotype 1/2 must mean the same thing in both)
 - [ ] S4: in the notebook, read the masked IBD files (`kgp_chr{i}_segments.masked.ibd.gz`) and use the KING unrelated set (its current table counts full samples, related individuals included)
@@ -38,7 +38,10 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [ ] Fig 6 / S9 framing: the multiple-donor simulations are framed as explaining MXL's lack of a positive correlation; revisit now that MXL is weakly positive
 - [ ] S6 caption: MXL no longer positive (rho -0.23, n.s.)
 - [ ] S8 caption and Results/Discussion: "negatively correlated in all populations" no longer holds for MXL (rho 0.11, n.s.)
-- [ ] Fig 3 and IBD claims in Results/Discussion (PUR/CLM vs FIN, MXL least IBD, PEL vs East Asians) once Fig 3 is rerun
+- [ ] Fig 3 Results: "MXL has the least amount of IBD sharing of all four admixed groups" no longer holds; PEL is lowest (mean cM per haplotype pair: PEL 0.28, MXL 0.33, CLM 3.67, PUR 5.14)
+- [ ] Fig 3 Discussion: "PEL shows levels most similar to those observed in East Asian populations" doesn't really hold; PEL (0.28) is as close to European (GBR 0.29, CEU 0.24) as to East Asian populations (CDX 0.35, CHS 0.22)
+- [ ] Fig 3 Results/Discussion: PUR and CLM are now above FIN (2.80), not "comparable"/"more similar" to it
+- [ ] Fig 3: "IBD and archaic sharing are not correlated": state the test (Spearman rho -0.37, p = 0.12 across 19 populations; Pearson p = 0.047, driven by PUR and CLM)
 - [ ] Results on S5 (standard model does not reproduce real IBD differences) and on simulated PEL in S9, once reruns are in
 
 ## 5. Methods and captions
