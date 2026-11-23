@@ -35,6 +35,10 @@ def _load_local_config() -> None:
             continue
         name, _, value = line.partition("=")
         name, value = name.strip(), value.strip().strip('"').strip("'")
+        # Expand $HOME, ${VAR} and ~ the way the shell would, so a line like
+        # export RESULTS_DIR="$HOME/scratch/results" means the same thing here
+        # as it does to bash (instead of a folder literally named "$HOME").
+        value = os.path.expanduser(os.path.expandvars(value))
         if name.isidentifier() and name not in os.environ:
             os.environ[name] = value
 
