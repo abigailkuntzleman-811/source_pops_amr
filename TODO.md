@@ -15,7 +15,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [x] S7: run `figure_code/figS7_ancestry_aware_ibd/01_ancestry_aware_ibd.py` (masked IBD, new LAI, KING set), new table, and upload to Overleaf
 - [ ] S7: confirm with Jazeps that hap-ibd and the joint caller used the same phased haplotypes (haplotype 1/2 must mean the same thing in both)
 - [ ] S4: in the notebook, read the masked IBD files (`kgp_chr{i}_segments.masked.ibd.gz`) and use the KING unrelated set (its current table counts full samples, related individuals included)
-- [ ] Fig 6 and S9: check the reruns finished with the IBD fix and the tract-overlap fix, 1000 replicates
+- [ ] Fig 6 and S9: rerun with the repo scripts (`figure_code/fig6/01_plot_donor_ibd.py`, `02_plot_donor_vs_standard_all_pops.py`; IBD fix, tract-overlap fix, 1000 replicates) and upload to Overleaf. The current Overleaf Fig 6 is the notebook version (old IBD calculation, 100 replicates)
 - [ ] Upload all regenerated figures to Overleaf (Fig 3, Fig 4, S4–S9)
 
 ## 2. Statistics
