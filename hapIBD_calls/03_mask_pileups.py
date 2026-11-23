@@ -125,13 +125,17 @@ def mask_segments(seg, peaks_bp, gmap, min_cm):
         return seg, 0, 0
     s, e = seg["start_bp"].to_numpy(), seg["end_bp"].to_numpy()
     touches = np.zeros(len(seg), bool)
+    inside = np.zeros(len(seg), bool)
     for ps, pe in peaks_bp:
         touches |= (s < pe) & (e > ps)
+        inside |= (s >= ps) & (e <= pe)
 
+    # Segments entirely inside a peak (millions, in a big pileup) are dropped in
+    # one step; only those crossing a peak's edge go through the loop below.
     untouched = seg[~touches]
     pieces = []
-    n_dropped = n_trimmed = 0
-    for row in seg[touches].itertuples(index=False):
+    n_dropped, n_trimmed = int(inside.sum()), 0
+    for row in seg[touches & ~inside].itertuples(index=False):
         keep = [(row.start_bp, row.end_bp)]
         for ps, pe in peaks_bp:                   # subtract each peak
             nxt = []
