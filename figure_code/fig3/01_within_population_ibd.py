@@ -106,10 +106,16 @@ def load_related_samples() -> set:
             "Run fig1/00_download_data.sh, or set RELATED_EXCLUDE."
         )
     df = pd.read_csv(ped, sep=r"\s+")
+    # Column capitalization differs between copies of this file
+    # (FatherID vs fatherID), so look the columns up ignoring case.
+    cols = {c.lower(): c for c in df.columns}
+    missing = [c for c in ("sampleid", "fatherid", "motherid") if c not in cols]
+    if missing:
+        sys.exit(f"{ped.name} has no {', '.join(missing)} column; found {list(df.columns)}")
     # A sample with a recorded parent is a child in a trio or duo.
-    has_parent = (df["fatherID"].astype(str) != "0") | \
-                 (df["motherID"].astype(str) != "0")
-    ids = set(df.loc[has_parent, "SampleID"])
+    has_parent = (df[cols["fatherid"]].astype(str) != "0") | \
+                 (df[cols["motherid"]].astype(str) != "0")
+    ids = set(df.loc[has_parent, cols["sampleid"]])
     print(f"excluding {len(ids):,} samples with a parent in the 1kGP pedigree")
     return ids
 
