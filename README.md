@@ -227,6 +227,26 @@ The IBD average here is per individual, over the unrelated members of the
 population: total cM shared with everyone else, divided by (n - 1). That is a
 different quantity from Figure 3, which averages over haplotype pairs.
 
+### IBD pileups
+
+hap-ibd reports huge numbers of short segments in a few regions next to
+centromeres (segmental duplications and genetic map errors), e.g. 99% of
+chr10's 3.6 million segments overlap 49 Mb. These are masked before any IBD
+analysis:
+
+```bash
+python hapIBD_calls/02_find_pileups.py     # optional: report pileups and their effect, changes nothing
+python hapIBD_calls/03_mask_pileups.py     # write kgp_chr<N>_segments.masked.ibd.gz
+```
+
+`03_mask_pileups.py` flags 100 kb bins whose segment coverage exceeds 3x the
+genome-wide median, removes segments entirely inside a flagged region, and
+trims segments that cross one, keeping trimmed pieces of at least 2 cM (cM
+from the genetic map hap-ibd used). The segment handling follows Guo et al.
+(2024, Nat Commun 15:2499); the peak threshold does not, for the reason given
+in the script's docstring. Figures 3 and 4 read the masked files by default;
+set `IBD_MASKED=0` to use the raw hap-ibd output.
+
 ### Related individuals
 
 All IBD analyses (Figures 3 and 4, and S6 and S8) use the maximal set of

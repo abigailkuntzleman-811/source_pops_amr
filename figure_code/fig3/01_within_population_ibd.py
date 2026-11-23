@@ -36,7 +36,7 @@ import pandas as pd
 _root = next(p for p in Path(__file__).resolve().parents
              if (p / "config.py").exists())
 sys.path.insert(0, str(_root))
-from config import (DATA_RAW, IBD_DIR, RELATED_EXCLUDE,  # noqa: E402
+from config import (DATA_RAW, IBD_DIR, IBD_MASKED, RELATED_EXCLUDE,  # noqa: E402
                     CHROMOSOMES)
 
 IBD_COLUMNS = ["id1", "hap1", "id2", "hap2", "chrom", "start_bp", "end_bp", "cM"]
@@ -121,12 +121,23 @@ def load_related_samples() -> set:
 
 
 def read_ibd_segments() -> pd.DataFrame:
-    """All autosomal hap-ibd segments, concatenated."""
+    """All autosomal hap-ibd segments, concatenated.
+
+    Reads the pileup-masked files from hapIBD_calls/03_mask_pileups.py unless
+    IBD_MASKED=0.
+    """
+    tag = ".masked" if IBD_MASKED else ""
+    print(f"using {'pileup-masked' if IBD_MASKED else 'raw (unmasked)'} IBD segments")
     frames = []
     for chrom in CHROMOSOMES:
         n = chrom.removeprefix("chr")
-        path = IBD_DIR / f"kgp_chr{n}_segments.ibd.gz"
+        path = IBD_DIR / f"kgp_chr{n}_segments{tag}.ibd.gz"
         if not path.exists():
+            if IBD_MASKED:
+                sys.exit(
+                    f"Missing {path}\nRun: python hapIBD_calls/03_mask_pileups.py "
+                    "(or set IBD_MASKED=0 to use the raw hap-ibd output)"
+                )
             sys.exit(
                 f"Missing {path}\nRun: sbatch --array=1-22 hapIBD_calls/01_call_ibd.script"
             )

@@ -95,6 +95,11 @@ VCF_DIR = _path("VCF_DIR", DATA_RAW / "1kgp_30x_grch38")
 IBD_DIR = _path("IBD_DIR", DATA_PROCESSED / "ibd")
 GENETIC_MAP_DIR = _path("GENETIC_MAP_DIR", DATA_RAW / "genetic_maps")
 
+# Read IBD segments with pileup regions masked (hapIBD_calls/03_mask_pileups.py),
+# i.e. kgp_chr<N>_segments.masked.ibd.gz. Set IBD_MASKED=0 to read the raw
+# hap-ibd output instead.
+IBD_MASKED = os.environ.get("IBD_MASKED", "1").strip() not in ("0", "false", "no", "")
+
 # Optional file of related sample IDs to exclude. Empty means fall back to
 # the related samples named in the 1000 Genomes pedigree.
 _related = os.environ.get("RELATED_EXCLUDE", "").strip()
