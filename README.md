@@ -310,6 +310,24 @@ Applying the cutoff to the raw pieces (tskit's `min_span`) undercounts IBD.
 
 ---
 
+## Reviewer analysis — archaic sequence shared vs unique between ancestry backgrounds
+
+Within each admixed population: of the archaic sequence, what percentage is
+found on both European and Indigenous American tracts (shared), and what
+percentage on only one. At each position with at least 20 haplotypes of each
+ancestry, 20 of each are picked at random (100 times, averaged); the null
+shuffles the EUR/AMR labels before picking (1000 times). Details in the
+script's docstring.
+
+```bash
+mkdir -p logs
+sbatch --array=0-3 figure_code/archaic_by_background/01_shared_unique_by_background.script
+# or one population directly:
+python3 figure_code/archaic_by_background/01_shared_unique_by_background.py PEL
+```
+
+Output: `$TABLE_DIR/archaic_by_background_<POP>.csv`.
+
 ## Table 1 — admixture proportion and shared archaic ancestry
 
 Reuses the pairwise sharing output from Figure 1, so run `figure_code/fig1/00`–`figure_code/fig1/03`

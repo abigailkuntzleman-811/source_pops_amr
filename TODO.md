@@ -26,7 +26,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 
 ## 3. New analyses and additions
 
-- [ ] Reviewer request: shared vs unique archaic ancestry on European vs Indigenous tracts within each population (matched sampling of k haplotypes per window, shuffled-label null)
+- [ ] Reviewer request: shared vs unique archaic ancestry on European vs Indigenous tracts within each population. Script written and tested: run `sbatch --array=0-3 figure_code/archaic_by_background/01_shared_unique_by_background.script` (20 haplotypes per background, 100 random picks, 1000 label shuffles)
 - [ ] Add the UpSet plot to the paper
 - [ ] Add the UpSet analysis to the methods and supplement (downsample each population to the smallest sample size, then compute all possible intersections)
 - [ ] Supplementary table of masked pileup regions (`hapIBD_calls/04_masked_regions_table.py` writes CSV and LaTeX)

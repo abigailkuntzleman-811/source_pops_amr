@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+# Slurm wrapper for archaic_by_background/01_shared_unique_by_background.py.
+# One job per admixed population.
+#
+#     sbatch --array=0-3 figure_code/archaic_by_background/01_shared_unique_by_background.script
+#
+# Requires the joint-caller BED files; set ARC_BED_DIR, LAI_BED_DIR and
+# POP_PANEL in config.local.sh.
+#
+#SBATCH -J archaic_by_background
+#SBATCH -t 6:00:00
+#SBATCH -n 1
+#SBATCH --mem=16G
+#SBATCH -o logs/archaic_by_background_%a.out
+#SBATCH -e logs/archaic_by_background_%a.err
+#SBATCH --mail-type=FAIL
+
+set -euo pipefail
+
+# Locate the repository root. When submitted with sbatch, BASH_SOURCE points
+# at a copy of this script in the Slurm spool directory, so the path relative
+# to it does not exist; fall back to the submission directory.
+find_repo_root() {
+  local candidate
+  for candidate in "$(dirname "${BASH_SOURCE[0]}")/.." \
+                   "$(dirname "${BASH_SOURCE[0]}")/../.." \
+                   "${SLURM_SUBMIT_DIR:-}" "${SLURM_SUBMIT_DIR:-}/.." \
+                   "$PWD" "$PWD/.."; do
+    if [[ -n "$candidate" && -f "$candidate/config.sh" ]]; then
+      (cd "$candidate" && pwd)
+      return 0
+    fi
+  done
+  echo "ERROR: could not find config.sh. Submit from the repository root," >&2
+  echo "       or set REPO_ROOT to the repository path." >&2
+  exit 1
+}
+REPO_ROOT="${REPO_ROOT:-$(find_repo_root)}"
+source "$REPO_ROOT/config.sh"
+
+# Activate the Python environment, if config.local.sh names one. A Slurm job
+# does not inherit the submitting shell's environment.
+if [[ -n "${VENV_ACTIVATE:-}" ]]; then
+  source "$VENV_ACTIVATE"
+fi
+
+POPS=(CLM MXL PEL PUR)
+POP="${POPS[${SLURM_ARRAY_TASK_ID:-0}]}"
+
+echo "Running: $POP"
+python3 "$REPO_ROOT/figure_code/archaic_by_background/01_shared_unique_by_background.py" "$POP"
