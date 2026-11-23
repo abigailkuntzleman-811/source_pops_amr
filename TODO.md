@@ -11,7 +11,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [x] Mask IBD pileups in the hap-ibd output (`hapIBD_calls/03_mask_pileups.py`; 12 regions, 30.8 Mb)
 - [x] Fig 4, S6, S8: rerun with masked IBD, KING unrelated set and new LAI calls, and upload to Overleaf
 - [ ] S5: simulated IBD per pair with the corrected (joined) IBD (`figure_code/fig6/03_plot_sim_ibd_per_pair.py`), and upload to Overleaf
-- [ ] Fig 3: rerun with masked IBD and KING unrelated set (done), and upload to Overleaf
+- [x] Fig 3: rerun with masked IBD and KING unrelated set, and upload to Overleaf
 - [ ] S7: run `figure_code/figS7_ancestry_aware_ibd/01_ancestry_aware_ibd.py` (masked IBD, new LAI, KING set)
 - [ ] S7: confirm with Jazeps that hap-ibd and the joint caller used the same phased haplotypes (haplotype 1/2 must mean the same thing in both)
 - [ ] S4: in the notebook, read the masked IBD files (`kgp_chr{i}_segments.masked.ibd.gz`) and use the KING unrelated set (its current table counts full samples, related individuals included)
