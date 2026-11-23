@@ -30,7 +30,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.ticker import FixedLocator, FuncFormatter, NullLocator
+from matplotlib.ticker import MaxNLocator
 
 _root = next(p for p in Path(__file__).resolve().parents if (p / "config.py").exists())
 sys.path.insert(0, str(_root))
@@ -104,7 +104,8 @@ def main():
 
 
 def plot(pairs):
-    # boxplot styled like Figure S4: zero pairs excluded, log y axis
+    # boxplot styled like Figure S4 (zero pairs excluded), but on a linear y axis:
+    # simulated values span only a few cM, unlike the real data
     fig, ax = plt.subplots(figsize=(8, 6))
     box = ax.boxplot(
         [[x for x in pairs[lab] if x > 0] for lab in LABELS],
@@ -115,17 +116,7 @@ def plot(pairs):
     ax.set_xticklabels(LABELS)
     for patch, color in zip(box["boxes"], COLORS):
         patch.set_facecolor(color)
-    ax.set_yscale("log")
-    # plain-number ticks (2, 3, 4, ...) rather than 2x10^0; the log scale stays,
-    # so the spacing between ticks shrinks going up
-    lo, hi = ax.get_ylim()
-    nice = [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50, 75, 100, 150, 200, 300, 500, 1000]
-    ticks = [t for t in nice if lo <= t <= hi]
-    if len(ticks) > 12:        # wide range: keep 1-2-5 steps only
-        ticks = [t for t in ticks if str(t).lstrip("0.")[0] in "125"]
-    ax.yaxis.set_major_locator(FixedLocator(ticks))
-    ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y:g}"))
-    ax.yaxis.set_minor_locator(NullLocator())
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax.set_ylabel("Total IBD (cM) per Pair")
 
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
