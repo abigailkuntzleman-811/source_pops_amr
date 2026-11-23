@@ -29,3 +29,7 @@
 # large intermediates off a quota-limited home directory:
 # export DATA_PROCESSED="$HOME/scratch/source_pops_amr/processed"
 # export RESULTS_DIR="$HOME/scratch/source_pops_amr/results"
+
+# KING binary and the unrelated list it produced (hapIBD_calls/05_king_unrelated.script)
+# export KING_BIN="$HOME/king/king"
+# export RELATED_EXCLUDE="/path/to/king_kinship/unrelatedunrelated_toberemoved.txt"

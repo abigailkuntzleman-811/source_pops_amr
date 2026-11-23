@@ -1,0 +1,63 @@
+#!/bin/bash
+#
+# Maximal set of unrelated individuals with KING, as used for every IBD analysis.
+#
+# The original run_king.script (May 2026), with paths from config.sh:
+#   1. concatenate the filtered autosomal VCFs (the same SNPs hap-ibd used:
+#      MAF > 0.05, duplicate positions removed, SNPs only; kept by 01_call_ibd.sh);
+#   2. PLINK 2: biallelic SNPs to PLINK binary format;
+#   3. PLINK 2: LD pruning, --indep-pairwise 50 5 0.2;
+#   4. KING 2.3.2: --unrelated --degree 3 (no relatives up to third degree).
+#
+#     sbatch hapIBD_calls/05_king_unrelated.script
+#
+# Needs bcftools and plink2 (modules on Oscar) and the KING binary: set KING_BIN
+# in config.local.sh (e.g. KING_BIN=~/king/king), or have `king` on PATH.
+#
+# Output in $KING_DIR; the file the analyses read is
+#     $KING_DIR/unrelatedunrelated_toberemoved.txt
+# (point RELATED_EXCLUDE at it in config.local.sh).
+#
+#SBATCH --job-name=king
+#SBATCH --time=12:00:00
+#SBATCH --mem=64G
+#SBATCH --cpus-per-task=16
+#SBATCH -o logs/king_%j.out
+#SBATCH -e logs/king_%j.out
+
+set -euo pipefail
+cd "${SLURM_SUBMIT_DIR:-$PWD}"
+[[ -f config.sh ]] || { echo "Submit from the repository root" >&2; exit 1; }
+source config.sh
+command -v module >/dev/null 2>&1 && { module load bcftools 2>/dev/null || true; module load plink2 2>/dev/null || true; }
+KING="${KING_BIN:-king}"
+THREADS=${SLURM_CPUS_PER_TASK:-8}
+WIN=50; STEP=5; R2=0.2
+
+mkdir -p "$KING_DIR"
+VCFS=()
+for CHR in {1..22}; do
+  f="$FILTERED_VCF_DIR/filtered_1kGP_high_coverage_Illumina.chr${CHR}.filtered.SNV_INDEL_SV_phased_panel.vcf.gz"
+  [[ -s "$f" ]] || { echo "Missing $f (run hapIBD_calls/01_call_ibd.script first)" >&2; exit 1; }
+  VCFS+=("$f")
+done
+cd "$KING_DIR"
+
+echo "[$(date)] Concatenating chromosomes 1-22..."
+bcftools concat -O z -o all_autosomes.vcf.gz --threads "$THREADS" "${VCFS[@]}"
+bcftools index -t all_autosomes.vcf.gz
+
+echo "[$(date)] Converting to PLINK..."
+plink2 --vcf all_autosomes.vcf.gz --double-id --max-alleles 2 --snps-only \
+       --make-bed --threads "$THREADS" --out all_autosomes
+
+echo "[$(date)] LD pruning (window=${WIN}, step=${STEP}, r^2<${R2})..."
+plink2 --bfile all_autosomes --indep-pairwise ${WIN} ${STEP} ${R2} \
+       --threads "$THREADS" --out all_autosomes_ldprune
+plink2 --bfile all_autosomes --extract all_autosomes_ldprune.prune.in \
+       --make-bed --threads "$THREADS" --out all_autosomes_pruned
+
+echo "[$(date)] Running KING..."
+"$KING" -b all_autosomes_pruned.bed --unrelated --degree 3 --prefix unrelated --cpus "$THREADS"
+
+echo "[$(date)] Done: $KING_DIR/unrelatedunrelated_toberemoved.txt"

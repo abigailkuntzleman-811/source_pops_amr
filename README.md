@@ -289,14 +289,21 @@ set `IBD_MASKED=0` to use the raw hap-ibd output.
 
 ### Related individuals
 
-All IBD analyses (Figures 3 and 4, and S6 and S8) use the maximal set of
-unrelated individuals from KING (`king --unrelated`), which contains no first-
-or second-degree relatives. KING writes the samples to drop to
-`unrelated_toberemoved.txt` (two columns, FID and IID); point `RELATED_EXCLUDE`
-at that file:
+All IBD analyses (Figures 3, 4, S4, S6, S7, S8) use the maximal set of
+unrelated individuals from KING 2.3.2 (`--unrelated --degree 3`: no relatives
+up to third degree), run on the same SNPs hap-ibd uses (MAF > 0.05, duplicate
+positions removed, SNPs only; kept by `01_call_ibd.sh`), LD-pruned with PLINK 2
+(`--indep-pairwise 50 5 0.2`):
 
 ```bash
-export RELATED_EXCLUDE="/path/to/unrelated_toberemoved.txt"
+sbatch hapIBD_calls/05_king_unrelated.script    # needs KING_BIN (e.g. ~/king/king), bcftools, plink2
+```
+
+KING writes the samples to drop to `unrelatedunrelated_toberemoved.txt` (two
+columns, FID and IID); point `RELATED_EXCLUDE` at that file:
+
+```bash
+export RELATED_EXCLUDE="/path/to/king_kinship/unrelatedunrelated_toberemoved.txt"
 ```
 
 Each script prints `excluding N samples listed in <file>` when it is in use.

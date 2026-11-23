@@ -56,6 +56,11 @@ export PAIRWISE_DIR="${PAIRWISE_DIR:-$DATA_PROCESSED/pairwise_comparisons}"
 # --- IBD ---
 # Downloaded 1000 Genomes VCFs (reused by the IBD pipeline).
 export VCF_DIR="${VCF_DIR:-$DATA_RAW/1kgp_30x_grch38}"
+# Filtered per-chromosome VCFs (MAF > 0.05, no duplicate positions, SNPs only),
+# kept by hapIBD_calls/01_call_ibd.sh and read by 05_king_unrelated.script.
+export FILTERED_VCF_DIR="${FILTERED_VCF_DIR:-$DATA_PROCESSED/filtered_vcf}"
+# KING output (unrelated_toberemoved.txt and friends)
+export KING_DIR="${KING_DIR:-$DATA_PROCESSED/king_kinship}"
 
 # hap-ibd executable. ibd/00_setup_resources.sh downloads it here.
 export HAPIBD_JAR="${HAPIBD_JAR:-$DATA_RAW/tools/hap-ibd.jar}"

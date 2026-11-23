@@ -134,6 +134,17 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Keep the filtered VCF (input to hap-ibd), which KING also uses
+# (hapIBD_calls/05_king_unrelated.script), under the name of the originals.
+# ---------------------------------------------------------------------------
+mkdir -p "$FILTERED_VCF_DIR"
+KEPT="$FILTERED_VCF_DIR/filtered_1kGP_high_coverage_Illumina.chr${CHROM}.filtered.SNV_INDEL_SV_phased_panel.vcf.gz"
+if [[ ! -s "$KEPT" ]]; then
+  cp "$curfile" "$KEPT"
+  bcftools index -f "$KEPT"
+fi
+
+# ---------------------------------------------------------------------------
 # Clean up intermediates. Set KEEP_TMP=1 to retain them for debugging.
 # ---------------------------------------------------------------------------
 if [[ "${KEEP_TMP:-0}" != "1" ]]; then
