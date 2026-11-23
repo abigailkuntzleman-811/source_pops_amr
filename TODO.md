@@ -12,7 +12,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [x] Fig 4, S6, S8: rerun with masked IBD, KING unrelated set and new LAI calls, and upload to Overleaf
 - [ ] S5: simulated IBD per pair with the corrected (joined) IBD (`figure_code/fig6/03_plot_sim_ibd_per_pair.py`), and upload to Overleaf
 - [x] Fig 3: rerun with masked IBD and KING unrelated set, and upload to Overleaf
-- [ ] S7: run `figure_code/figS7_ancestry_aware_ibd/01_ancestry_aware_ibd.py` (masked IBD, new LAI, KING set)
+- [x] S7: run `figure_code/figS7_ancestry_aware_ibd/01_ancestry_aware_ibd.py` (masked IBD, new LAI, KING set), new table, and upload to Overleaf
 - [ ] S7: confirm with Jazeps that hap-ibd and the joint caller used the same phased haplotypes (haplotype 1/2 must mean the same thing in both)
 - [ ] S4: in the notebook, read the masked IBD files (`kgp_chr{i}_segments.masked.ibd.gz`) and use the KING unrelated set (its current table counts full samples, related individuals included)
 - [ ] Fig 6 and S9: check the reruns finished with the IBD fix and the tract-overlap fix, 1000 replicates
@@ -41,6 +41,10 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [ ] Fig 3 Discussion: "PEL shows levels most similar to those observed in East Asian populations" doesn't really hold; PEL (0.28) is as close to European (GBR 0.29, CEU 0.24) as to East Asian populations (CDX 0.35, CHS 0.22)
 - [ ] Fig 3 Results/Discussion: PUR and CLM are now above FIN (2.80), not "comparable"/"more similar" to it
 - [ ] Fig 3: "IBD and archaic sharing are not correlated": state the test (Spearman rho -0.37, p = 0.12 across 19 populations; Pearson p = 0.047, driven by PUR and CLM)
+- [ ] S7 caption: example "32.7% of pairs in CLM have no IBD overlapping shared European ancestry" is now 53.4%; pair counts changed with the KING set (CLM 17,484, MXL 7,564)
+- [ ] S7 Results: the EUR < AMR < AFR gradient in pairs with no IBD is gone (now within 1-3 points in every population); "shared African ancestry contains fewer IBD segments more often" still holds but only slightly. Higher EUR ratio in CLM/PUR than MXL/PEL still holds (mean 0.0017-0.0021 vs 0.00016-0.00017)
+- [ ] S7 Discussion: "CLM and PUR distribution is bimodal ... wider distribution for MXL" is not visible in the new figure
+- [ ] S7 / limitations: the joint-caller local ancestry switches every few 300-SNP windows (~1,350 switches per haplotype on chr10 vs ~10-30 expected), so ancestry at a given position on a given haplotype is noisy; affects S7 most (and Fig 2 / reviewer analysis), not ancestry proportions
 - [ ] Results on S5 (standard model does not reproduce real IBD differences) and on simulated PEL in S9, once reruns are in
 
 ## 5. Methods and captions
