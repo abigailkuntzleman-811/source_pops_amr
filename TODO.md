@@ -13,13 +13,13 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [ ] S5: simulated IBD per pair with the corrected (joined) IBD (`figure_code/fig6/03_plot_sim_ibd_per_pair.py`), and upload to Overleaf
 - [x] Fig 3: rerun with masked IBD and KING unrelated set, and upload to Overleaf
 - [x] S7: run `figure_code/figS7_ancestry_aware_ibd/01_ancestry_aware_ibd.py` (masked IBD, new LAI, KING set), new table, and upload to Overleaf
-- [ ] S4: in the notebook, read the masked IBD files (`kgp_chr{i}_segments.masked.ibd.gz`) and use the KING unrelated set (its current table counts full samples, related individuals included)
+- [x] S4: masked IBD and KING unrelated set (`figure_code/figS4_ibd_boxplots/01_plot_real_ibd_per_pair.py`), new table, and upload to Overleaf
 - [ ] Fig 6 and S9: rerun with the repo scripts (`figure_code/fig6/01_plot_donor_ibd.py`, `02_plot_donor_vs_standard_all_pops.py`; IBD fix, tract-overlap fix, 1000 replicates) and upload to Overleaf. The current Overleaf Fig 6 is the notebook version (old IBD calculation, 100 replicates)
-- [ ] Upload all regenerated figures to Overleaf (Fig 3, Fig 4, S4–S9)
+- [ ] Upload the remaining regenerated figures to Overleaf (S5, Fig 6, S9)
 
 ## 2. Statistics
 
-- [ ] Redo the tests on IBD distributions: real data (S4) with a bootstrap over individuals, simulations (S5) with one value per replicate; decide and state whether zero-IBD pairs are included
+- [ ] Redo the tests on IBD distributions for S4 and S5 (S4 caption currently says all admixed populations differ from IBS except MXL, from the old tests on the old data): real data (S4) with a bootstrap over individuals, simulations (S5) with one value per replicate; decide and state whether zero-IBD pairs are included
 - [ ] S9: report the replicate-level test of the slope difference (`sims_IBD_admix_prop_stats.csv`) rather than the pooled interaction p-value
 
 ## 3. New analyses and additions
