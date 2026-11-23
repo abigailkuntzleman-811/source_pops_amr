@@ -16,6 +16,7 @@ Prerequisites:
 Usage:
     python figure_code/fig4/02_plot_admix_vs_ibd.py
     python figure_code/fig4/02_plot_admix_vs_ibd.py --ancestry AMR
+    python figure_code/fig4/02_plot_admix_vs_ibd.py --alpha 0.4      # more see-through points
 
 Output:
     results/figures/<ANCESTRY>_prop_admix_by_ibd.png
@@ -133,6 +134,8 @@ def main() -> None:
                         help="unit used by 00_ancestry_proportions.py")
     parser.add_argument("--ylim", nargs=2, type=float, default=(-5, 50),
                         help="y axis limits (default: -5 50)")
+    parser.add_argument("--alpha", type=float, default=0.6,
+                        help="point opacity, 0 (invisible) to 1 (solid); default 0.6")
     args = parser.parse_args()
 
     fig, axes = plt.subplots(2, 2, figsize=(8, 6))
@@ -147,7 +150,7 @@ def main() -> None:
             ax.set_title(f"{label}\n(insufficient data)")
             continue
 
-        ax.scatter(x, y, s=18, alpha=1.0, color=COLORS[pop])
+        ax.scatter(x, y, s=18, alpha=args.alpha, color=COLORS[pop], linewidths=0)
 
         result = linregress(x, y)
         rho, p_spearman = spearmanr(x, y)
