@@ -19,7 +19,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 
 ## 2. Statistics
 
-- [ ] Redo the tests on IBD distributions for S4 and S5 (S4 caption currently says all admixed populations differ from IBS except MXL, from the old tests on the old data): real data (S4) with a bootstrap over individuals, simulations (S5) with one value per replicate; decide and state whether zero-IBD pairs are included
+- [ ] Redo the tests on IBD distributions for S4 and S5 (S4 caption currently says all admixed populations differ from IBS except MXL, from the old pair-level tests on the old data). Scripts written and tested: S4 `figure_code/figS4_ibd_boxplots/02_stats.py` (bootstrap over individuals); S5 rerun `03_plot_sim_ibd_per_pair.py` (now saves per-replicate means), then `figure_code/fig6/04_sim_ibd_stats.py` (one value per replicate, paired with IBS from the same replicate). Each admixed population vs IBS, mean with and without zero pairs, Holm-corrected
 - [ ] S9: report the replicate-level test of the slope difference (`sims_IBD_admix_prop_stats.csv`) rather than the pooled interaction p-value
 
 ## 3. New analyses and additions

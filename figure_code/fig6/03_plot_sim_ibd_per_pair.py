@@ -19,6 +19,7 @@ Output:
     $FIGURE_DIR/IBD_simmed_boxplots.png
     $TABLE_DIR/IBD_boxplots_sims_standard.csv
     $TABLE_DIR/IBD_boxplots_sims_standard_pairs.npz   every pair's IBD, for --replot
+    $TABLE_DIR/IBD_boxplots_sims_standard_replicates.csv   per-replicate means, for 04_sim_ibd_stats.py
 """
 
 import argparse
@@ -73,6 +74,7 @@ def main():
 
     pairs = {lab: [] for lab in LABELS}
     rep_means = {lab: [] for lab in LABELS}
+    rep_rows = []   # one row per simulation replicate and sample, for the statistics
     for pop in ADMIXED:
         for i in range(1, args.reps + 1):
             if i % 50 == 0 or i == 1:
@@ -82,6 +84,11 @@ def main():
                 v = ibd_pairs(ts, lab)
                 pairs[lab] += v
                 rep_means[lab].append(np.mean(v))
+                a = np.asarray(v)
+                rep_rows.append({"simulation": pop, "sample": lab, "rep": i,
+                                 "n_pairs": len(a), "n_nonzero": int((a > 0).sum()),
+                                 "mean_all": a.mean(),
+                                 "mean_nonzero": a[a > 0].mean() if (a > 0).any() else np.nan})
 
     # table with the same columns as Figure S4, plus the replicate-level spread
     rows = []
@@ -99,6 +106,7 @@ def main():
     print("\n" + table.round(4).to_string(index=False))
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
     table.to_csv(TABLE_DIR / "IBD_boxplots_sims_standard.csv", index=False)
+    pd.DataFrame(rep_rows).to_csv(TABLE_DIR / "IBD_boxplots_sims_standard_replicates.csv", index=False)
     np.savez_compressed(saved, **{lab: np.array(pairs[lab]) for lab in LABELS})
     plot(pairs)
 

@@ -241,7 +241,12 @@ Uses the per-pair table written by step 01 above (masked IBD, KING unrelated set
 
 ```bash
 python figure_code/figS4_ibd_boxplots/01_plot_real_ibd_per_pair.py   # -> IBD_boxplots_excludes0s.png and table
+python figure_code/figS4_ibd_boxplots/02_stats.py                  # each admixed population vs IBS
 ```
+
+Haplotype pairs are not independent (each individual is in hundreds of pairs),
+so the statistics bootstrap individuals rather than pairs: mean IBD per pair
+(with and without zero pairs), 95% intervals, p values with Holm correction.
 
 ---
 
@@ -400,6 +405,7 @@ python figure_code/fig6/01_plot_donor_ibd.py                # -> results/figures
 python figure_code/fig6/compare_original_vs_fixed.py        # optional: old vs fixed IBD side by side
 python figure_code/fig6/02_plot_donor_vs_standard_all_pops.py   # Figure S9: donor vs standard, 4 populations
 python figure_code/fig6/03_plot_sim_ibd_per_pair.py           # Figure S5: IBD per pair, standard model
+python figure_code/fig6/04_sim_ibd_stats.py                   # Figure S5 statistics: one value per replicate, vs IBS
 ```
 
 IBD in the simulations is computed by `figure_code/fig6/sim_ibd.py`. tskit
