@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+# Simulate and extract European tracts for many replicates of one scenario,
+# one replicate per array task.
+#
+#     sbatch --array=1-1000 figure_code/simulations/run_replicates.script <scenario> <POP> [--with-ibs]
+#
+# e.g. sbatch --array=1-1000 figure_code/simulations/run_replicates.script no_bottleneck_donor MXL --with-ibs
+#
+# Multi-donor scenarios (mxl_double_donor_recent, mxl_donor6) then need
+#     python figure_code/simulations/03_merge_donor_tracts.py <scenario> MXL 1-1000
+#
+#SBATCH -J sims
+#SBATCH -t 4:00:00
+#SBATCH -n 1
+#SBATCH --mem=8G
+#SBATCH -o logs/sims_%x_%A_%a.out
+#SBATCH -e logs/sims_%x_%A_%a.out
+
+set -euo pipefail
+cd "${SLURM_SUBMIT_DIR:-$PWD}"
+[[ -f config.sh ]] || { echo "Submit from the repository root" >&2; exit 1; }
+source config.sh
+if [[ -n "${VENV_ACTIVATE:-}" ]]; then source "$VENV_ACTIVATE"; fi
+
+SCENARIO="$1"; POP="$2"; shift 2
+REP="${SLURM_ARRAY_TASK_ID:?submit with --array}"
+
+python3 figure_code/simulations/01_simulate.py "$SCENARIO" "$POP" "$REP" "$@"
+python3 figure_code/simulations/02_extract_tracts.py "$SCENARIO" "$POP" "$REP"

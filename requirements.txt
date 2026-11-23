@@ -1,24 +1,26 @@
-# Python dependencies for the Figure 1 / Table 1 pipeline.
+# Python dependencies for every script in the repository.
 #   pip install -r requirements.txt
 #
-# Pin these to the versions you actually ran before submitting:
-#   pip freeze | grep -iE 'pandas|numpy|matplotlib|pyranges|scipy'
+# Pin these to the versions you actually ran before publishing:
+#   pip freeze | grep -iE 'pandas|numpy|matplotlib|pyranges|scipy|statsmodels|tskit|msprime|demes|upsetplot'
 
-pandas>=1.5
+pandas>=1.5,<3        # upsetplot 0.9 does not yet work with pandas 3
 numpy>=1.23
 matplotlib>=3.6
 pyranges>=0.0.120
 scipy>=1.9
+statsmodels>=0.13     # Figure 6 confidence bands
+tskit>=0.5            # simulations, Figures 6, S5, S9
+msprime>=1.2          # simulations
+demes>=0.2            # simulations
+upsetplot>=0.9        # UpSet plot
 
-# Used elsewhere in Chapter_1.ipynb, not by the Figure 1 scripts:
+# Used only in Chapter_1.ipynb:
 # seaborn>=0.12
-# statsmodels>=0.13
 # scikit-posthocs>=0.7
-# tskit>=0.5
-# msprime>=1.2
-# demes>=0.2
 
-# Non-Python requirement:
-#   bedops >= 2.4   (provides `bedops --intersect`, used by
-#                    fig1/03_pairwise_sharing.sh)
-#   On an HPC system it may be available as a module, e.g. `module load bedops`.
+# Non-Python requirements:
+#   bedops >= 2.4   (`bedops --intersect`, used by fig1/03_pairwise_sharing.sh)
+#   hap-ibd 1.0     (hapIBD_calls/00_setup_resources.sh downloads it)
+#   KING            (related individuals; see README)
+#   On an HPC system these may be available as modules, e.g. `module load bedops`.

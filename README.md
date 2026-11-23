@@ -157,6 +157,22 @@ default `EUR AMR`.
 
 ---
 
+## Figure S2 and the UpSet plot — archaic sequence recovered per population
+
+From the hmmix calls (Figure 1 steps 00-01). Step 01 writes the recovery
+curves for S2 and each population downsampled to the smallest sample size
+(seeded), which the UpSet plot uses.
+
+```bash
+for a in all neanderthal denisovan; do
+  sbatch -J s2_$a run.script figure_code/figS2_hmmix_recovered/01_recovered_from_hmmix.py $a
+done
+python figure_code/figS2_hmmix_recovered/02_plot_recovered_from_hmmix.py   # -> combined_hmmix_recovered.png
+python figure_code/upset/01_upset_shared_unique.py all                      # -> upset_all.png, upset_regions_all.csv
+```
+
+---
+
 ## Running scripts as Slurm jobs
 
 Any Python script here can run on a compute node instead of the login node:
@@ -216,6 +232,16 @@ python figure_code/fig3/02_plot_ibd_vs_archaic.py         # -> results/figures/
 | Figure 3 | `python figure_code/fig3/02_plot_ibd_vs_archaic.py` |
 
 Also writes `results/tables/archaic_share_vs_ibd.csv` with the plotted values.
+
+---
+
+### Figure S4 — IBD per haplotype pair
+
+Uses the per-pair table written by step 01 above (masked IBD, KING unrelated set):
+
+```bash
+python figure_code/figS4_ibd_boxplots/01_plot_real_ibd_per_pair.py   # -> IBD_boxplots_excludes0s.png and table
+```
 
 ---
 
@@ -303,11 +329,64 @@ and `ancestry_aware_ibd_ratios.png` to `FIGURE_DIR`. Assumes haplotypes 1 and
 
 ---
 
+## Figure 5 — PCA of European-ancestry haplotypes
+
+Plotting code from Jazeps Medina-Tretmanis. Needs his module
+`plot_haploid_smartpca.py` and the smartpca output for the masked haploid
+chromosome 1 data (`PCA_DIR`, with `data.evec`). The steps that build that
+input are still to be added.
+
+```bash
+python figure_code/fig5/01_plot_pca.py     # -> european_pca_v2.png
+```
+
+---
+
 ## Figure 6 — simulated admixture models: admixture proportion against IBD
 
 Needs the msprime simulations of each model; set `SIM_DIR` in
 `config.local.sh` (one folder per model, each with `tree_seqs/` and
 `admix_csvs/`).
+
+### Simulations (Figures 6, S5, S9; also S1 models)
+
+The demographic models are in `data/demographic_models/` (demes YAML). Each
+replicate: simulate 100 haploid samples over 50 Mb (01), extract European
+ancestry tracts from the recorded migrations (02), and for the multi-donor
+models merge the per-donor tracts (03). Scenario folders and source
+populations are listed in `figure_code/simulations/scenarios.py`.
+
+```bash
+mkdir -p logs
+# standard and single-donor models, each admixed population (IBS samples needed for Figure S5)
+for pop in CLM MXL PEL PUR; do
+  sbatch --array=1-1000 figure_code/simulations/run_replicates.script no_bottleneck_donor $pop --with-ibs
+  sbatch --array=1-1000 figure_code/simulations/run_replicates.script eur_donor $pop
+done
+# MXL with two and six donors, then merge their tracts
+sbatch --array=1-1000 figure_code/simulations/run_replicates.script mxl_double_donor_recent MXL
+sbatch --array=1-1000 figure_code/simulations/run_replicates.script mxl_donor6 MXL
+python figure_code/simulations/03_merge_donor_tracts.py mxl_double_donor_recent MXL 1-1000
+python figure_code/simulations/03_merge_donor_tracts.py mxl_donor6 MXL 1-1000
+```
+
+The original runs set no random seed, so a rerun gives new replicates rather
+than identical ones; `01_simulate.py --seed N` makes a run repeatable.
+
+### Figure S3 — simulated archaic sequence on European vs Indigenous tracts
+
+Needs Neanderthal (NEA) and Indigenous American (MXB) tracts as well as the
+European ones, from the standard model:
+
+```bash
+for pop in CLM MXL PEL PUR; do
+  for rep in $(seq 1 100); do
+    python figure_code/simulations/02_extract_tracts.py no_bottleneck_donor $pop $rep --sources NEA MXB
+  done
+  python figure_code/figS3_sim_recovered/01_archaic_by_ancestry.py no_bottleneck_donor $pop 1-100
+done
+python figure_code/figS3_sim_recovered/02_plot_sim_recovered.py     # -> simulated_recovered_amr_eur_yay.png
+```
 
 ```bash
 python figure_code/fig6/01_plot_donor_ibd.py                # -> results/figures/, one PNG per step
@@ -381,36 +460,29 @@ and how a reader can obtain them.]
 ## Repository layout
 
 ```
-config.py, config.sh         all paths and parameters
-  fig1/                      Figure 1 pipeline, numbered in run order
-  00_download_data.sh        fetch public inputs
-  01_filter_hmmix_calls.py   posterior probability filter
-  02_segments_to_bed.py/.sh  per-haplotype BED files
-  03_pairwise_sharing.sh     pairwise intersections (uses the two helpers)
-  pairwise_hmmix.sh          between-population comparisons
-  pairwise_within_hmmix.sh   within-population comparisons
-  04_heatmap.py              builds the matrix and draws the figure
-figure_code/fig2/                        Figure 2, needs ARC_BED_DIR and LAI_BED_DIR
-  01_recovered_by_ancestry.py   recovery curves per population and ancestry
-  02_plot_recovered_by_ancestry.py  draws the figure
-figure_code/fig3/                        Figure 3, needs fig1 and hapIBD_calls output
-  01_within_population_ibd.py  within-population IBD per haplotype pair
-  02_plot_ibd_vs_archaic.py    archaic sharing against IBD sharing
-fig4/                        Figure 4, needs LAI_BED_DIR and hapIBD_calls output
-  01_individual_ibd.py         average IBD per individual
-  02_plot_admix_vs_ibd.py      admixture proportion against IBD
-hapIBD_calls/                IBD calling with hap-ibd
-  00_setup_resources.sh      downloads hap-ibd.jar
-  01_call_ibd.sh/.script     filter the panel and call IBD, per chromosome
-table1/                      Table 1, reuses fig1 steps 00-03
-  00_ancestry_proportions.py continental ancestry proportions (needs LAI_BED_DIR)
-  01_table1_values.py        assembles the table
-data/raw/                    downloaded inputs (not tracked)
-data/processed/              intermediates (not tracked)
-data/demographic_models/     demes models for the simulation analyses
-results/figures/             generated figures
-scripts/                     earlier versions, superseded by figure_code/fig1/
-Chapter_1.ipynb              full exploratory notebook
+config.py, config.sh, config.local.sh.example   all paths and parameters
+run.script                    run any script below as a Slurm job
+figure_code/
+  fig1/                       Figure 1 (hmmix calls, pairwise sharing, heatmap)
+  fig2/                       Figure 2 (archaic sequence recovered by continental ancestry)
+  fig3/                       Figure 3 (archaic sharing vs within-population IBD)
+  fig4/                       Figure 4, S6, S8 (admixture proportion vs per-individual IBD)
+  fig5/                       Figure 5 (PCA; plotting only, see above)
+  fig6/                       Figures 6, S5, S9 (IBD and admixture in the simulations)
+  figS2_hmmix_recovered/      Figure S2 and the downsampled sets for the UpSet plot
+  figS3_sim_recovered/        Figure S3
+  figS4_ibd_boxplots/         Figure S4
+  figS7_ancestry_aware_ibd/   Figure S7
+  simulations/                msprime simulations and ancestry tracts
+  upset/                      UpSet plot
+  archaic_by_background/      reviewer analysis (shared vs unique archaic by ancestry)
+hapIBD_calls/                 IBD calling with hap-ibd, pileup masking, masked-regions table
+table1/                       Table 1
+data/demographic_models/      demes models for the simulations
+data/raw/, data/processed/    inputs and intermediates (not tracked)
+results/                      generated figures and tables (not tracked)
+scripts/                      earlier versions, superseded by figure_code/
+Chapter_1.ipynb               full exploratory notebook
 ```
 
 ---
