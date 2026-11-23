@@ -227,6 +227,26 @@ The IBD average here is per individual, over the unrelated members of the
 population: total cM shared with everyone else, divided by (n - 1). That is a
 different quantity from Figure 3, which averages over haplotype pairs.
 
+### Related individuals
+
+All IBD analyses (Figures 3 and 4, and S6 and S8) use the maximal set of
+unrelated individuals from KING (`king --unrelated`), which contains no first-
+or second-degree relatives. KING writes the samples to drop to
+`unrelated_toberemoved.txt` (two columns, FID and IID); point `RELATED_EXCLUDE`
+at that file:
+
+```bash
+export RELATED_EXCLUDE="/path/to/unrelated_toberemoved.txt"
+```
+
+Each script prints `excluding N samples listed in <file>` when it is in use.
+Without `RELATED_EXCLUDE`, the scripts fall back to dropping every sample with
+a parent recorded in the 1000 Genomes pedigree, which removes fewer people and
+gives slightly different sample sizes.
+
+Analyses that do not use IBD (Figure 2, Table 1) keep every individual,
+related ones included.
+
 Spearman's rho and the regression p values are reported in the panel titles
 and saved to `results/tables/`.
 
