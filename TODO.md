@@ -22,7 +22,6 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 
 - [ ] Redo the tests on IBD distributions: real data (S4) with a bootstrap over individuals, simulations (S5) with one value per replicate; decide and state whether zero-IBD pairs are included
 - [ ] S9: report the replicate-level test of the slope difference (`sims_IBD_admix_prop_stats.csv`) rather than the pooled interaction p-value
-- [ ] Optional: robustness check with IBD segments of at least 3 or 4 cM
 
 ## 3. New analyses and additions
 
@@ -58,7 +57,6 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 
 ## 6. Checks
 
-- [ ] Literature: is the low within-population IBD in PEL and MXL after masking (about 1 cM per partner) consistent with published estimates (e.g. Mooney et al. 2018)?
 - [ ] Table 1: new African proportions (CLM 0.15, PUR 0.20) look high next to published estimates; check the joint caller's reference panels
 - [ ] Masking used the maps in `data/raw/genetic_maps` (not found in the hap-ibd logs); confirm they are the maps hap-ibd used
 
