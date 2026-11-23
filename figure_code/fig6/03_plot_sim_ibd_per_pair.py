@@ -13,10 +13,12 @@ IBD uses sim_ibd.ibd_pairs: pieces joined into tracts before a 2 cM cutoff
 Usage:
     python figure_code/fig6/03_plot_sim_ibd_per_pair.py              # 1000 replicates
     python figure_code/fig6/03_plot_sim_ibd_per_pair.py --reps 5     # quick look
+    python figure_code/fig6/03_plot_sim_ibd_per_pair.py --replot     # redraw only, from the saved pairs
 
 Output:
     $FIGURE_DIR/IBD_boxplots_sims_standard.png
     $TABLE_DIR/IBD_boxplots_sims_standard.csv
+    $TABLE_DIR/IBD_boxplots_sims_standard_pairs.npz   every pair's IBD, for --replot
 """
 
 import argparse
@@ -28,13 +30,12 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import tskit
+from matplotlib.ticker import FuncFormatter, LogLocator, NullFormatter
 
 _root = next(p for p in Path(__file__).resolve().parents if (p / "config.py").exists())
 sys.path.insert(0, str(_root))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from config import FIGURE_DIR, SIM_DIR, TABLE_DIR  # noqa: E402
-from sim_ibd import ibd_pairs  # noqa: E402
 
 STANDARD = "no_bottleneck_donor"
 ADMIXED = ["CLM", "MXL", "PEL", "PUR"]
@@ -46,7 +47,21 @@ COLORS = ["#1f4e79", "#A3D9FF", "#DA3E52", "#96E6B3", "#7E6B8F"]
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reps", type=int, default=1000)
+    parser.add_argument("--replot", action="store_true",
+                        help="redraw from the saved pairs (IBD_boxplots_sims_standard_pairs.npz) "
+                             "instead of reading the tree sequences again")
     args = parser.parse_args()
+    saved = TABLE_DIR / "IBD_boxplots_sims_standard_pairs.npz"
+
+    if args.replot:
+        if not saved.exists():
+            sys.exit(f"Missing {saved}; run once without --replot first.")
+        d = np.load(saved)
+        plot({lab: d[lab] for lab in LABELS})
+        return
+
+    import tskit
+    from sim_ibd import ibd_pairs
 
     tree = lambda pop, i: SIM_DIR / STANDARD / "tree_seqs" / f"{pop}_rep{i}.ts.gz"
     missing = [tree(p, i) for p in ADMIXED for i in range(1, args.reps + 1)
@@ -84,7 +99,11 @@ def main():
     print("\n" + table.round(4).to_string(index=False))
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
     table.to_csv(TABLE_DIR / "IBD_boxplots_sims_standard.csv", index=False)
+    np.savez_compressed(saved, **{lab: np.array(pairs[lab]) for lab in LABELS})
+    plot(pairs)
 
+
+def plot(pairs):
     # boxplot styled like Figure S4: zero pairs excluded, log y axis
     fig, ax = plt.subplots(figsize=(8, 6))
     box = ax.boxplot(
@@ -97,6 +116,10 @@ def main():
     for patch, color in zip(box["boxes"], COLORS):
         patch.set_facecolor(color)
     ax.set_yscale("log")
+    # plain numbers (2, 5, 10, 20, ...) rather than powers of ten
+    ax.yaxis.set_major_locator(LogLocator(base=10, subs=(1.0, 2.0, 5.0)))
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y:g}"))
+    ax.yaxis.set_minor_formatter(NullFormatter())
     ax.set_ylabel("Total IBD (cM) per Pair")
 
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
