@@ -14,7 +14,7 @@ Usage:
     python figure_code/fig6/01_plot_donor_ibd.py --ymax 400      # fix the upper y limit (cM)
 
 Output:
-    $FIGURE_DIR/<POP>_IBD_progressive_step<N>_<model>.png
+    $FIGURE_DIR/<pop>_IBD_progressive_<POP>_step<N>_<model>.png   (step4_plus_six is Figure 6)
     $TABLE_DIR/<POP>_IBD_progressive_slopes.csv   slope per model, mean and SD over replicates
 """
 
@@ -132,7 +132,8 @@ def main():
         # outside the axes, so it never covers a band
         ax.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
         fig.tight_layout()
-        out = FIGURE_DIR / f"{args.pop}_IBD_progressive_step{n}_{STYLE[current]['tag']}.png"
+        # same names as the figure in Overleaf (e.g. mxl_IBD_progressive_MXL_step4_plus_six.png)
+        out = FIGURE_DIR / f"{args.pop.lower()}_IBD_progressive_{args.pop}_step{n}_{STYLE[current]['tag']}.png"
         fig.savefig(out, dpi=200)
         print(f"wrote {out}")
 
