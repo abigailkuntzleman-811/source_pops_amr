@@ -1,0 +1,60 @@
+#!/bin/bash
+#
+# Run any of the repository's Python scripts as a Slurm job, instead of on the
+# login node. Everything after the script name is passed to it unchanged.
+#
+#     sbatch run.script <script.py> [arguments]
+#
+# Examples (from the repository root):
+#     sbatch -J figS5 run.script figure_code/fig6/03_plot_sim_ibd_per_pair.py --reps 1000
+#     sbatch -J figS7 run.script figure_code/figS7_ancestry_aware_ibd/01_ancestry_aware_ibd.py
+#
+# -J names the job; the log goes to logs/<job name>_<job id>.out (make the
+# logs folder once: mkdir -p logs). Override time or memory on the command
+# line, e.g. sbatch -t 24:00:00 --mem=64G run.script ...
+#
+# Submit from a shell where your Python environment is active: sbatch passes
+# that environment on to the job. Alternatively set VENV_ACTIVATE in
+# config.local.sh.
+#
+#SBATCH -J run
+#SBATCH -t 12:00:00
+#SBATCH -n 1
+#SBATCH --mem=32G
+#SBATCH -o logs/%x_%j.out
+#SBATCH -e logs/%x_%j.out
+#SBATCH --mail-type=FAIL
+
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+  echo "usage: sbatch run.script <script.py> [arguments]" >&2
+  exit 1
+fi
+
+# Locate the repository root (see fig2/01_recovered_by_ancestry.script).
+find_repo_root() {
+  local candidate
+  for candidate in "$(dirname "${BASH_SOURCE[0]}")" \
+                   "${SLURM_SUBMIT_DIR:-}" "${SLURM_SUBMIT_DIR:-}/.." \
+                   "$PWD" "$PWD/.."; do
+    if [[ -n "$candidate" && -f "$candidate/config.sh" ]]; then
+      (cd "$candidate" && pwd)
+      return 0
+    fi
+  done
+  echo "ERROR: could not find config.sh. Submit from the repository root." >&2
+  exit 1
+}
+REPO_ROOT="${REPO_ROOT:-$(find_repo_root)}"
+source "$REPO_ROOT/config.sh"
+if [[ -n "${VENV_ACTIVATE:-}" ]]; then
+  source "$VENV_ACTIVATE"
+fi
+
+cd "$REPO_ROOT"
+SCRIPT="$1"; shift
+echo "job ${SLURM_JOB_ID:-local} on $(hostname), $(date)"
+echo "running: python3 $SCRIPT $*"
+python3 "$SCRIPT" "$@"
+echo "finished $(date)"

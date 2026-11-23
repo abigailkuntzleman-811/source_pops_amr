@@ -157,6 +157,20 @@ default `EUR AMR`.
 
 ---
 
+## Running scripts as Slurm jobs
+
+Any Python script here can run on a compute node instead of the login node:
+
+```bash
+mkdir -p logs                     # once
+sbatch -J figS5 run.script figure_code/fig6/03_plot_sim_ibd_per_pair.py --reps 1000
+tail -f logs/figS5_<jobid>.out    # follow progress
+```
+
+Everything after the script name is passed to it. Defaults: 12 h, 32 GB;
+override on the command line (`sbatch -t 24:00:00 --mem=64G run.script ...`).
+Submit with your Python environment active.
+
 ## IBD calling
 
 Detects IBD segments in the 1000 Genomes 30x phased panel with hap-ibd. This
