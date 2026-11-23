@@ -29,10 +29,39 @@ def _pop_id(ts, pop):
     return next(p.id for p in ts.populations() if p.metadata.get("name") == pop)
 
 
+def covered_bp(starts, ends):
+    """Length covered by a set of intervals, counting overlaps once."""
+    order = sorted(zip(starts, ends))
+    total, cur_start, cur_end = 0, None, None
+    for s, e in order:
+        if cur_end is None or s > cur_end:          # gap: close the current run
+            if cur_end is not None:
+                total += cur_end - cur_start
+            cur_start, cur_end = s, e
+        else:                                       # overlaps or touches: extend
+            cur_end = max(cur_end, e)
+    if cur_end is not None:
+        total += cur_end - cur_start
+    return total
+
+
 def admix_props(tracts, ts, pop):
-    """European admixture proportion per individual: tract length / sequence length."""
+    """European admixture proportion per individual: covered length / sequence length.
+
+    The standard and single-donor `_stitched` tract files can list the same
+    stretch of a haplotype more than once (overlapping tracts from several
+    migration records), so each haplotype's tracts are merged before summing
+    rather than summing the `length` column. Files already merged (two and six
+    donors) give the same answer either way.
+    """
     pop_id = _pop_id(ts, pop)
-    totals = tracts.groupby("hap_id")["length"].sum()
+    cols = {c.lower(): c for c in tracts.columns}
+    if "start" not in cols or "end" not in cols:
+        raise ValueError("tract file needs start and end columns (any case) to merge "
+                         f"overlapping tracts; found {list(tracts.columns)}")
+    start, end = cols["start"], cols["end"]
+    totals = {hap: covered_bp(g[start].to_numpy(), g[end].to_numpy())
+              for hap, g in tracts.groupby("hap_id")}
     return {ind.id: totals.get(ind.id, 0) / ts.sequence_length
             for ind in ts.individuals()
             if ts.node(ind.nodes[0]).population == pop_id}
