@@ -17,15 +17,20 @@ Mann-Whitney on pairs) give p values that are far too small. Instead:
      two-sided bootstrap p value, Holm correction over the four populations
      (separately for each statistic).
 
+With --all-pairs, every pair of the five populations is compared instead
+(10 comparisons, Holm over all 10).
+
 Usage:
     python figure_code/figS4_ibd_boxplots/02_stats.py
-    python figure_code/figS4_ibd_boxplots/02_stats.py --boot 10000
+    python figure_code/figS4_ibd_boxplots/02_stats.py --all-pairs
 
 Output: $TABLE_DIR/IBD_boxplots_excludes0s_stats.csv
+        $TABLE_DIR/IBD_boxplots_excludes0s_stats_all_pairs.csv   (--all-pairs)
 """
 
 import argparse
 import sys
+from itertools import combinations
 from pathlib import Path
 
 import numpy as np
@@ -81,6 +86,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--boot", type=int, default=10000)
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--all-pairs", action="store_true",
+                    help="compare every pair of populations, not just each admixed population vs IBS")
     args = ap.parse_args()
     rng = np.random.default_rng(args.seed)
 
@@ -100,20 +107,23 @@ def main():
         print(f"{pop}: {n} individuals, mean_all {observed[pop]['mean_all']:.4f}, "
               f"mean_nonzero {observed[pop]['mean_nonzero']:.4f}", flush=True)
 
+    order = [REFERENCE] + ADMIXED
+    comparisons = list(combinations(order, 2)) if args.all_pairs else [(REFERENCE, p) for p in ADMIXED]
     rows = []
     for stat in STATS:
         block = []
-        for pop in ADMIXED:
-            d = (boots[pop][stat] - boots[REFERENCE][stat]).dropna().to_numpy()
+        for ref, pop in comparisons:
+            d = (boots[pop][stat] - boots[ref][stat]).dropna().to_numpy()
             p = min(1.0, 2 * min((d <= 0).mean(), (d >= 0).mean()))
             p = max(p, 1 / (len(d) + 1))
             lo, hi = np.percentile(d, [2.5, 97.5])
             pop_lo, pop_hi = np.percentile(boots[pop][stat].dropna(), [2.5, 97.5])
             block.append({
-                "statistic": stat, "population": pop, "n_individuals": n_ind[pop],
+                "statistic": stat, "population": pop, "compared_with": ref,
+                "n_individuals": n_ind[pop],
                 "value": observed[pop][stat], "value_ci_low": pop_lo, "value_ci_high": pop_hi,
-                "IBS_value": observed[REFERENCE][stat],
-                "difference_vs_IBS": observed[pop][stat] - observed[REFERENCE][stat],
+                "other_value": observed[ref][stat],
+                "difference": observed[pop][stat] - observed[ref][stat],
                 "diff_ci_low": lo, "diff_ci_high": hi, "p": p,
             })
         for r, adj in zip(block, holm([r["p"] for r in block])):
@@ -122,7 +132,8 @@ def main():
 
     out = pd.DataFrame(rows)
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
-    path = TABLE_DIR / "IBD_boxplots_excludes0s_stats.csv"
+    path = TABLE_DIR / ("IBD_boxplots_excludes0s_stats_all_pairs.csv" if args.all_pairs
+                        else "IBD_boxplots_excludes0s_stats.csv")
     out.to_csv(path, index=False)
     print("\n" + out.round(4).to_string(index=False))
     print(f"\n{args.boot} bootstrap draws of individuals; p < {1 / (args.boot + 1):.0e} is the floor")
