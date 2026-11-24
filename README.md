@@ -392,7 +392,7 @@ European ones, from the standard model. One array task per replicate (all four
 populations; existing tract files are reused):
 
 ```bash
-sbatch --array=1-1000 figure_code/figS3_sim_recovered/01_archaic_by_ancestry.script
+sbatch --array=1-100 figure_code/figS3_sim_recovered/01_archaic_by_ancestry.script 10   # 10 replicates per task
 python figure_code/figS3_sim_recovered/02_plot_sim_recovered.py     # -> simulated_recovered_amr_eur_yay.png (1000 replicates)
 ```
 

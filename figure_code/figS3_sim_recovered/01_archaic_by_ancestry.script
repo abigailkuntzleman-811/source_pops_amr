@@ -7,11 +7,16 @@
 #
 #     sbatch --array=1-1000 figure_code/figS3_sim_recovered/01_archaic_by_ancestry.script
 #
+# If the cluster limits how many jobs you can submit, give each task a batch
+# of replicates instead (task i does replicates (i-1)*N+1 .. i*N), e.g. 10 each:
+#
+#     sbatch --array=1-100 figure_code/figS3_sim_recovered/01_archaic_by_ancestry.script 10
+#
 # Then the figure (seconds):
 #     python figure_code/figS3_sim_recovered/02_plot_sim_recovered.py
 #
 #SBATCH -J figS3
-#SBATCH -t 2:00:00
+#SBATCH -t 24:00:00
 #SBATCH -n 1
 #SBATCH --mem=8G
 #SBATCH -o logs/figS3_%A_%a.out
@@ -23,9 +28,12 @@ cd "${SLURM_SUBMIT_DIR:-$PWD}"
 source config.sh
 if [[ -n "${VENV_ACTIVATE:-}" ]]; then source "$VENV_ACTIVATE"; fi
 
-REP="${SLURM_ARRAY_TASK_ID:?submit with --array}"
-for POP in CLM MXL PEL PUR; do
-  python3 figure_code/simulations/02_extract_tracts.py no_bottleneck_donor "$POP" "$REP" \
-      --sources IBS NEA MXB --skip-existing
-  python3 figure_code/figS3_sim_recovered/01_archaic_by_ancestry.py no_bottleneck_donor "$POP" "$REP"
+TASK="${SLURM_ARRAY_TASK_ID:?submit with --array}"
+PER_TASK="${1:-1}"
+for REP in $(seq $(( (TASK - 1) * PER_TASK + 1 )) $(( TASK * PER_TASK ))); do
+  for POP in CLM MXL PEL PUR; do
+    python3 figure_code/simulations/02_extract_tracts.py no_bottleneck_donor "$POP" "$REP" \
+        --sources IBS NEA MXB --skip-existing
+    python3 figure_code/figS3_sim_recovered/01_archaic_by_ancestry.py no_bottleneck_donor "$POP" "$REP"
+  done
 done
