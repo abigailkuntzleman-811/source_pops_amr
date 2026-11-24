@@ -164,7 +164,7 @@ def plot(results):
             xp, yp, lo, hi, _ = results[pop][m]
             ax.plot(xp, yp, color=MODELS[m][2], linewidth=2)
             ax.fill_between(xp, lo, hi, color=MODELS[m][2], alpha=0.25)
-        ax.set_title(pop)
+        ax.set_title(pop, fontsize=16)
         ax.set_ylim(min(0, lowest - pad), highest + pad)
 
     fig.supxlabel("European admixture proportion", fontsize=16)

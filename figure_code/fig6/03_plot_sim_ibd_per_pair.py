@@ -121,11 +121,12 @@ def plot(pairs):
         showfliers=False,  # with this many pairs, outlier circles merge into solid bars
     )
     ax.set_xticks(range(1, len(LABELS) + 1))
-    ax.set_xticklabels(LABELS)
+    ax.set_xticklabels(LABELS, fontsize=15)
+    ax.tick_params(axis="y", labelsize=13)
     for patch, color in zip(box["boxes"], COLORS):
         patch.set_facecolor(color)
     ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-    ax.set_ylabel("Total IBD (cM) per Pair")
+    ax.set_ylabel("Total IBD (cM) per pair", fontsize=16)
 
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
     out = FIGURE_DIR / "IBD_simmed_boxplots.png"

@@ -63,7 +63,8 @@ def main():
     fig, ax = plt.subplots(figsize=(8, 6))
     box = ax.boxplot([values[lab][values[lab] > 0] for lab in LABELS], patch_artist=True)
     ax.set_xticks(range(1, len(LABELS) + 1))
-    ax.set_xticklabels(LABELS)
+    ax.set_xticklabels(LABELS, fontsize=15)
+    ax.tick_params(axis="y", labelsize=13)
     for patch, color in zip(box["boxes"], COLORS):
         patch.set_facecolor(color)
 
@@ -74,7 +75,7 @@ def main():
     ax.yaxis.set_major_locator(FixedLocator([t for t in nice if lo <= t <= hi]))
     ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y:g}"))
     ax.yaxis.set_minor_locator(NullLocator())
-    ax.set_ylabel("Total IBD (cM) per Pair")
+    ax.set_ylabel("Total IBD (cM) per pair", fontsize=16)
 
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
     out = FIGURE_DIR / "IBD_boxplots_excludes0s.png"

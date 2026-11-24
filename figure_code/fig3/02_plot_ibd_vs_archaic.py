@@ -154,8 +154,8 @@ def main() -> None:
                         textcoords="offset points", xytext=(3, 7),
                         ha="center", fontsize=10)
 
-    ax.set_xlabel("Average archaic sharing (bp)")
-    ax.set_ylabel("Average shared IBD (cM)")
+    ax.set_xlabel("Average archaic sharing (bp)", fontsize=16)
+    ax.set_ylabel("Average shared IBD (cM)", fontsize=16)
     ax.set_xlim(df["archaic_bp"].min() - 1_000_000,
                 df["archaic_bp"].max() + 1_000_000)
     ax.set_ylim(df["ibd_cM"].min() - 1, df["ibd_cM"].max() + 1)
