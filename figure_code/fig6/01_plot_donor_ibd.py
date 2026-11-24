@@ -60,6 +60,8 @@ def main():
     parser.add_argument("--ymax", type=float, default=None,
                         help="upper y-axis limit in cM (default: fit all four "
                              "confidence bands, with a little headroom)")
+    parser.add_argument("--ymin", type=float, default=1.0,
+                        help="lower y-axis limit in cM (default 1)")
     parser.add_argument("--replot", action="store_true",
                         help="redraw from the saved per-individual values (<POP>_IBD_progressive_data.npz) "
                              "instead of reading the tree sequences again")
@@ -126,7 +128,10 @@ def plot(args, fits):
     lowest = min(fits[m][2].min() for m in MODELS)
     highest = max(fits[m][3].max() for m in MODELS)
     pad = 0.05 * (highest - min(lowest, 0))
-    ymin = min(0, lowest - pad)
+    ymin = args.ymin
+    if lowest < ymin:
+        print(f"\nnote: the confidence bands go down to {lowest:.2f} cM, below --ymin {ymin}; "
+              f"parts of the plot will be cut off", file=sys.stderr)
     ymax = args.ymax if args.ymax is not None else highest + pad
     if highest > ymax:
         print(f"\nnote: the confidence bands reach {highest:.1f} cM, above --ymax {ymax}; "
