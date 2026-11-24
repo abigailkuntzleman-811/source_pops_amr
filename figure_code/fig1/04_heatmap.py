@@ -7,12 +7,15 @@ and draws the lower-triangle heatmap used in the paper. Diagonal entries are
 within-population sharing.
 
 Usage:
-    python fig1/04_heatmap.py neanderthal
-    python fig1/04_heatmap.py denisovan
-    python fig1/04_heatmap.py all
+    python figure_code/fig1/04_heatmap.py figure        # Figure 1: A Neanderthal, B Denisovan
+    python figure_code/fig1/04_heatmap.py neanderthal   # single panels
+    python figure_code/fig1/04_heatmap.py denisovan
+    python figure_code/fig1/04_heatmap.py all
 
 Output:
-    results/figures/<archaic>_shared_heatmap.png
+    $FIGURE_DIR/shared_heatmap.png                  (figure; the name used in the paper)
+    $FIGURE_DIR/<archaic>_shared_heatmap.png        (single panels)
+    $FIGURE_DIR/<archaic>_shared_heatmap_values.csv
 """
 
 import argparse
@@ -23,6 +26,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
+from matplotlib.colors import LinearSegmentedColormap
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 _root = next(p for p in Path(__file__).resolve().parents
              if (p / "config.py").exists())
@@ -37,6 +42,14 @@ SUB_POPS = [
     "GIH", "PJL", "BEB", "STU", "ITU",
     "MXL", "PEL", "PUR", "CLM",
 ]
+
+
+# Colours sampled from the colour bar of Figure 1 as published (light yellow to
+# dark green), which is more muted than matplotlib's YlGn.
+CMAP = LinearSegmentedColormap.from_list("fig1", [
+    "#fdfecb", "#f9fcc6", "#e0eeb1", "#bedb9d", "#96c287",
+    "#71a76b", "#528050", "#3b6540", "#1c3422",
+])
 
 
 def get_averages(path: Path):
@@ -126,49 +139,72 @@ def sci_label(x, _pos):
     return rf"${m:g} \times 10^{{{e}}}$"
 
 
-def plot_comparisons(matrix: np.ndarray, archaic: str, out_path: Path) -> None:
-    """Lower-triangle heatmap, matching the figure in the paper."""
-    fig, ax = plt.subplots()
-
-    # Mask the upper triangle; the matrix is symmetric.
+def draw_panel(ax, matrix: np.ndarray, fig, letter: str = None, title: str = None) -> None:
+    """Lower-triangle heatmap (diagonal = within-population sharing) with its colour bar."""
     lower_mask = np.tri(matrix.shape[0], matrix.shape[1], k=-1)
     masked = np.ma.array(matrix, mask=lower_mask.T)
-
-    im = ax.imshow(masked, cmap="YlGn", vmin=np.nanmin(matrix), vmax=np.nanmax(matrix))
-
+    im = ax.imshow(masked, cmap=CMAP, vmin=np.nanmin(matrix), vmax=np.nanmax(matrix))
     ax.set_xticks(range(len(SUB_POPS)), labels=SUB_POPS,
                   rotation=45, ha="right", rotation_mode="anchor", fontsize=12)
     ax.set_yticks(range(len(SUB_POPS)), labels=SUB_POPS, fontsize=12)
-
-    cbar = fig.colorbar(im, ax=ax)
-    # each tick in scientific notation (the Denisovan values are an order of
-    # magnitude smaller, so a fixed x10^6 gave labels like 0.3x10^6)
+    # colour bar exactly as tall as the heatmap
+    cax = make_axes_locatable(ax).append_axes("right", size="5%", pad=0.5)
+    cbar = fig.colorbar(im, cax=cax)
     cbar.ax.yaxis.set_major_formatter(mticker.FuncFormatter(sci_label))
+    cbar.ax.tick_params(labelsize=11)
+    if letter:
+        ax.text(-0.22, 1.0, letter, transform=ax.transAxes, fontsize=26, va="top")
+    if title:
+        ax.set_title(title, fontsize=16)
 
-    plt.title(archaic.capitalize(), fontsize=16)
+
+def plot_comparisons(matrix: np.ndarray, archaic: str, out_path: Path) -> None:
+    """One panel, titled with the archaic type."""
+    fig, ax = plt.subplots()
+    draw_panel(ax, matrix, fig, title=archaic.capitalize())
     fig.tight_layout()
-
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(out_path, dpi=300)
+    fig.savefig(out_path, dpi=300)
     plt.close(fig)
+
+
+def plot_figure(neanderthal: np.ndarray, denisovan: np.ndarray, out_path: Path) -> None:
+    """Figure 1 as published: (A) Neanderthal, (B) Denisovan, side by side."""
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    draw_panel(axes[0], neanderthal, fig, letter="A")
+    draw_panel(axes[1], denisovan, fig, letter="B")
+    fig.tight_layout()
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+
+
+def save_values(matrix: np.ndarray, archaic: str) -> None:
+    # the underlying values, so the figure can be checked without rerunning
+    csv_path = FIGURE_DIR / f"{archaic}_shared_heatmap_values.csv"
+    np.savetxt(csv_path, matrix, delimiter=",", header=",".join(SUB_POPS), comments="")
+    print(f"wrote {csv_path}")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("archaic", choices=["all", "neanderthal", "denisovan"])
+    parser.add_argument("archaic", choices=["figure", "all", "neanderthal", "denisovan"])
     args = parser.parse_args()
 
-    matrix = build_matrix(args.archaic)
+    if args.archaic == "figure":
+        mats = {a: build_matrix(a) for a in ("neanderthal", "denisovan")}
+        out_path = FIGURE_DIR / "shared_heatmap.png"
+        plot_figure(mats["neanderthal"], mats["denisovan"], out_path)
+        print(f"wrote {out_path}")
+        for a, m in mats.items():
+            save_values(m, a)
+        return
 
+    matrix = build_matrix(args.archaic)
     out_path = FIGURE_DIR / f"{args.archaic}_shared_heatmap.png"
     plot_comparisons(matrix, args.archaic, out_path)
     print(f"wrote {out_path}")
-
-    # Save the underlying values so the figure can be checked without rerunning.
-    csv_path = FIGURE_DIR / f"{args.archaic}_shared_heatmap_values.csv"
-    np.savetxt(csv_path, matrix, delimiter=",",
-               header=",".join(SUB_POPS), comments="")
-    print(f"wrote {csv_path}")
+    save_values(matrix, args.archaic)
 
 
 if __name__ == "__main__":

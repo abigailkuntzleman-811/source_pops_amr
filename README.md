@@ -102,7 +102,7 @@ bash   figure_code/fig1/00_download_data.sh                    # ~1.5 GB from Ze
 python figure_code/fig1/01_filter_hmmix_calls.py               # mean_prob >= 0.80
 bash   figure_code/fig1/02_segments_to_bed.sh                  # per-haplotype BED files
 bash   figure_code/fig1/03_pairwise_sharing.sh neanderthal     # pairwise intersections
-python figure_code/fig1/04_heatmap.py neanderthal              # -> results/figures/
+python figure_code/fig1/04_heatmap.py figure                   # -> shared_heatmap.png (A Neanderthal, B Denisovan)
 ```
 
 Step 3 is the expensive one: every haplotype pair within and between 19
@@ -118,8 +118,8 @@ Repeat steps 3–4 with `denisovan` or `all` for the other panels.
 
 | Paper item | Command |
 |---|---|
-| Figure 1, Neanderthal panel | `python figure_code/fig1/04_heatmap.py neanderthal` |
-| Figure 1, Denisovan panel | `python figure_code/fig1/04_heatmap.py denisovan` |
+| Figure 1 (both panels, as published) | `python figure_code/fig1/04_heatmap.py figure` |
+| Figure 1, single panels | `python figure_code/fig1/04_heatmap.py neanderthal` (or `denisovan`, `all`) |
 
 Each run writes the figure and a CSV of the underlying matrix to
 `results/figures/`, so the values behind the plot can be checked without
