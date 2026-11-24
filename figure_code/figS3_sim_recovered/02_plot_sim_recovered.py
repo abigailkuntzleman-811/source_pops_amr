@@ -15,6 +15,7 @@ Output: $FIGURE_DIR/simulated_recovered_amr_eur_yay.png
 """
 
 import argparse
+import math
 import sys
 from pathlib import Path
 
@@ -24,6 +25,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pyranges as pr
+from matplotlib.ticker import FuncFormatter
 
 _root = next(p for p in Path(__file__).resolve().parents if (p / "config.py").exists())
 sys.path.insert(0, str(_root))
@@ -68,6 +70,17 @@ def curve(df, n=100):
     return list(np.cumsum(by_hap))
 
 
+def sci_label(x, _pos):
+    """5000000 -> 5 x 10^6 (same style as the Figure 3 x axis)."""
+    if x == 0:
+        return "0"
+    e = int(math.floor(math.log10(abs(x))))
+    m = round(x / 10 ** e, 2)
+    if m == 10:
+        m, e = 1, e + 1
+    return rf"${m:g} \times 10^{{{e}}}$"
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--scenario", default="no_bottleneck_donor")
@@ -99,6 +112,7 @@ def main():
     plt.xlabel("Number of Individuals")
     plt.ylabel("Recovered Archaic Sequence (bp)")
     plt.ylim(0, 2.1e7)
+    plt.gca().yaxis.set_major_formatter(FuncFormatter(sci_label))
     plt.legend()
     plt.tight_layout()
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
