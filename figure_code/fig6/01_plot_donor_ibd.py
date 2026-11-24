@@ -12,6 +12,7 @@ Usage:
     python figure_code/fig6/01_plot_donor_ibd.py                 # MXL, 1000 replicates
     python figure_code/fig6/01_plot_donor_ibd.py --reps 5        # quick look
     python figure_code/fig6/01_plot_donor_ibd.py --ymax 400      # fix the upper y limit (cM)
+    python figure_code/fig6/01_plot_donor_ibd.py --replot        # redraw only, from the saved values
 
 Output:
     $FIGURE_DIR/<pop>_IBD_progressive_<POP>_step<N>_<model>.png   (step4_plus_six is Figure 6)
@@ -59,7 +60,19 @@ def main():
     parser.add_argument("--ymax", type=float, default=None,
                         help="upper y-axis limit in cM (default: fit all four "
                              "confidence bands, with a little headroom)")
+    parser.add_argument("--replot", action="store_true",
+                        help="redraw from the saved per-individual values (<POP>_IBD_progressive_data.npz) "
+                             "instead of reading the tree sequences again")
     args = parser.parse_args()
+    saved = TABLE_DIR / f"{args.pop}_IBD_progressive_data.npz"
+
+    if args.replot:
+        if not saved.exists():
+            sys.exit(f"Missing {saved}; run once without --replot first.")
+        d = np.load(saved)
+        data = {m: {"x": d[f"{k}_x"], "y": d[f"{k}_y"]} for k, m in enumerate(MODELS)}
+        plot(args, {m: fit(np.asarray(v["x"]), np.asarray(v["y"])) for m, v in data.items()})
+        return
 
     # Every model must have every replicate, or the models aren't comparable.
     # Check before starting rather than failing hours in.
@@ -91,6 +104,8 @@ def main():
             slopes[model].append(np.polyfit(x, y, 1)[0])
 
     fits = {m: fit(np.array(d["x"]), np.array(d["y"])) for m, d in data.items()}
+    TABLE_DIR.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(saved, **{f"{k}_{c}": np.array(data[m][c]) for k, m in enumerate(MODELS) for c in "xy"})
 
     # slopes: pooled fit, and per-replicate mean +/- SD (the honest uncertainty)
     rows = [{"model": m, "pooled_slope": fits[m][4].params[1],
@@ -102,7 +117,10 @@ def main():
     print("\n" + table.to_string(index=False))
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
     table.to_csv(TABLE_DIR / f"{args.pop}_IBD_progressive_slopes.csv", index=False)
+    plot(args, fits)
 
+
+def plot(args, fits):
     # One y range for every step, so the axes don't jump as models are added:
     # from 0 (or the lowest band, if below 0) to the highest band plus 5%.
     lowest = min(fits[m][2].min() for m in MODELS)
@@ -117,7 +135,7 @@ def main():
     xmin = min(fits[m][0].min() for m in MODELS)
     xmax = max(fits[m][0].max() for m in MODELS)
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
-    fig, ax = plt.subplots(figsize=(9.5, 5))
+    fig, ax = plt.subplots(figsize=(10, 7.5))
     for n, current in enumerate(MODELS, start=1):
         ax.clear()
         for m in list(MODELS)[:n]:
@@ -127,14 +145,15 @@ def main():
             ax.fill_between(xp, lo, hi, color=STYLE[m]["color"], alpha=0.25)
         ax.set_xlim(xmin, xmax)
         ax.set_ylim(ymin, ymax)
-        ax.set_xlabel("European admixture proportion", fontsize=14)
-        ax.set_ylabel("IBD shared with other individuals (cM)", fontsize=14)
-        # outside the axes, so it never covers a band
-        ax.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
+        ax.set_xlabel("European admixture proportion", fontsize=18)
+        ax.set_ylabel("IBD shared with other individuals (cM)", fontsize=18)
+        ax.tick_params(labelsize=14)
+        # inside, upper left (white box so it stays readable over a band)
+        ax.legend(loc="upper left", fontsize=14, frameon=True, facecolor="white", framealpha=0.9)
         fig.tight_layout()
         # same names as the figure in Overleaf (e.g. mxl_IBD_progressive_MXL_step4_plus_six.png)
         out = FIGURE_DIR / f"{args.pop.lower()}_IBD_progressive_{args.pop}_step{n}_{STYLE[current]['tag']}.png"
-        fig.savefig(out, dpi=200)
+        fig.savefig(out, dpi=300)
         print(f"wrote {out}")
 
 

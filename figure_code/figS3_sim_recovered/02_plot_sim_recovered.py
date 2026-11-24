@@ -8,8 +8,8 @@ background; plot the mean over replicates with a 95% confidence interval
 (mean +- 1.96 SE).
 
 Usage:
-    python figure_code/figS3_sim_recovered/02_plot_sim_recovered.py              # 100 replicates, standard model
-    python figure_code/figS3_sim_recovered/02_plot_sim_recovered.py --reps 1000
+    python figure_code/figS3_sim_recovered/02_plot_sim_recovered.py              # 1000 replicates, standard model
+    python figure_code/figS3_sim_recovered/02_plot_sim_recovered.py --reps 100
 
 Output: $FIGURE_DIR/simulated_recovered_amr_eur_yay.png
 """
@@ -42,15 +42,36 @@ def merged_bp(df):
     return (m["End"] - m["Start"]).sum()
 
 
-def curve(df, n=100):
-    # hap_id 1..i, as in the notebook
+def curve_slow(df, n=100):
+    """The notebook's version: merged sequence of hap_id 1..i, for i = 1..n."""
     return [merged_bp(df[df["hap_id"].isin(range(1, i + 1))]) if len(df) else 0 for i in range(1, n + 1)]
+
+
+def curve(df, n=100):
+    """Same result as curve_slow, in one pass: for each stretch of sequence, find
+    the lowest hap_id (from 1 to n) covering it; the merged sequence of
+    haplotypes 1..i is everything whose lowest covering hap_id is <= i."""
+    if df is None or df.empty:
+        return [0] * n
+    df = df.rename(columns={"start": "Start", "end": "End"})
+    df = df[(df["hap_id"] >= 1) & (df["hap_id"] <= n)]
+    if df.empty:
+        return [0] * n
+    edges = np.unique(np.concatenate([df["Start"].to_numpy(), df["End"].to_numpy()]))
+    first = np.full(len(edges) - 1, n + 1)
+    lo = np.searchsorted(edges, df["Start"].to_numpy())
+    hi = np.searchsorted(edges, df["End"].to_numpy())
+    for h, a, b in zip(df["hap_id"].to_numpy(), lo, hi):
+        np.minimum(first[a:b], h, out=first[a:b])
+    width = np.diff(edges)
+    by_hap = np.bincount(first, weights=width, minlength=n + 2)[1:n + 1]
+    return list(np.cumsum(by_hap))
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--scenario", default="no_bottleneck_donor")
-    p.add_argument("--reps", type=int, default=100)
+    p.add_argument("--reps", type=int, default=1000)
     args = p.parse_args()
     d = SIM_DIR / args.scenario / "admix_csvs"
 

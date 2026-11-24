@@ -110,6 +110,8 @@ def main():
     p.add_argument("rep", type=int)
     p.add_argument("--sources", nargs="+", default=None,
                    help="source populations by name (default: the scenario's European source(s))")
+    p.add_argument("--skip-existing", action="store_true",
+                   help="leave tract files that already exist untouched")
     args = p.parse_args()
 
     ts_path = SIM_DIR / args.scenario / "tree_seqs" / f"{args.pop}_rep{args.rep}.ts.gz"
@@ -121,8 +123,11 @@ def main():
     target = population_id(ts, args.pop)
     for source in args.sources or SCENARIOS[args.scenario]["sources"]:
         sid = population_id(ts, source)
-        tracts = extract_introgressed_tracts(get_intro(sid, [target], ts))
         out = out_dir / tract_file(args.pop, sid, args.rep)
+        if args.skip_existing and out.exists():
+            print(f"{source} (id {sid}): {out.name} exists, skipped")
+            continue
+        tracts = extract_introgressed_tracts(get_intro(sid, [target], ts))
         tracts.to_csv(out, index=False, compression="gzip")
         print(f"{source} (id {sid}): {len(tracts):,} tracts -> {out}")
 

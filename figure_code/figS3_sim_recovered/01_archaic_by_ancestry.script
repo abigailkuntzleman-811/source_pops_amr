@@ -1,0 +1,31 @@
+#!/bin/bash
+#
+# Figure S3 inputs for one replicate of the standard model, all four admixed
+# populations: Neanderthal (NEA) and Indigenous American (MXB) tracts (European
+# tracts already exist from the simulations; any missing are made too), then
+# the archaic sequence on each background.
+#
+#     sbatch --array=1-1000 figure_code/figS3_sim_recovered/01_archaic_by_ancestry.script
+#
+# Then the figure (seconds):
+#     python figure_code/figS3_sim_recovered/02_plot_sim_recovered.py
+#
+#SBATCH -J figS3
+#SBATCH -t 2:00:00
+#SBATCH -n 1
+#SBATCH --mem=8G
+#SBATCH -o logs/figS3_%A_%a.out
+#SBATCH -e logs/figS3_%A_%a.out
+
+set -euo pipefail
+cd "${SLURM_SUBMIT_DIR:-$PWD}"
+[[ -f config.sh ]] || { echo "Submit from the repository root" >&2; exit 1; }
+source config.sh
+if [[ -n "${VENV_ACTIVATE:-}" ]]; then source "$VENV_ACTIVATE"; fi
+
+REP="${SLURM_ARRAY_TASK_ID:?submit with --array}"
+for POP in CLM MXL PEL PUR; do
+  python3 figure_code/simulations/02_extract_tracts.py no_bottleneck_donor "$POP" "$REP" \
+      --sources IBS NEA MXB --skip-existing
+  python3 figure_code/figS3_sim_recovered/01_archaic_by_ancestry.py no_bottleneck_donor "$POP" "$REP"
+done

@@ -16,6 +16,8 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [x] S4: masked IBD and KING unrelated set (`figure_code/figS4_ibd_boxplots/01_plot_real_ibd_per_pair.py`), new table, and upload to Overleaf
 - [x] Fig 6 and S9: rerun with the repo scripts (IBD fix, tract-overlap fix, 1000 replicates) and upload to Overleaf
 - [x] Upload the remaining regenerated figures to Overleaf (Fig 6, S9)
+- [ ] Fig 6: bigger, legend inside upper left: `python figure_code/fig6/01_plot_donor_ibd.py` once (saves the data), later style changes with `--replot`; upload
+- [ ] S3: recompute over 1000 replicates (`sbatch --array=1-1000 figure_code/figS3_sim_recovered/01_archaic_by_ancestry.script`, then `02_plot_sim_recovered.py`); upload; caption replicate count (currently 100)
 
 ## 2. Statistics
 

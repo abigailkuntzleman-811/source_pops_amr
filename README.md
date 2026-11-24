@@ -388,16 +388,12 @@ than identical ones; `01_simulate.py --seed N` makes a run repeatable.
 ### Figure S3 — simulated archaic sequence on European vs Indigenous tracts
 
 Needs Neanderthal (NEA) and Indigenous American (MXB) tracts as well as the
-European ones, from the standard model:
+European ones, from the standard model. One array task per replicate (all four
+populations; existing tract files are reused):
 
 ```bash
-for pop in CLM MXL PEL PUR; do
-  for rep in $(seq 1 100); do
-    python figure_code/simulations/02_extract_tracts.py no_bottleneck_donor $pop $rep --sources NEA MXB
-  done
-  python figure_code/figS3_sim_recovered/01_archaic_by_ancestry.py no_bottleneck_donor $pop 1-100
-done
-python figure_code/figS3_sim_recovered/02_plot_sim_recovered.py     # -> simulated_recovered_amr_eur_yay.png
+sbatch --array=1-1000 figure_code/figS3_sim_recovered/01_archaic_by_ancestry.script
+python figure_code/figS3_sim_recovered/02_plot_sim_recovered.py     # -> simulated_recovered_amr_eur_yay.png (1000 replicates)
 ```
 
 ```bash
