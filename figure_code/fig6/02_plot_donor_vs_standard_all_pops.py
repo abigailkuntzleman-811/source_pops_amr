@@ -18,6 +18,7 @@ Two tests of whether the slope differs between the models are reported:
 Usage:
     python figure_code/fig6/02_plot_donor_vs_standard_all_pops.py              # 1000 replicates
     python figure_code/fig6/02_plot_donor_vs_standard_all_pops.py --reps 5     # quick look
+    python figure_code/fig6/02_plot_donor_vs_standard_all_pops.py --replot     # redraw only, from the saved values
 
 Output:
     $FIGURE_DIR/sims_IBD_admix_prop.png
@@ -70,7 +71,19 @@ def fit(x, y):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reps", type=int, default=1000)
+    parser.add_argument("--replot", action="store_true",
+                        help="redraw from the saved per-sample values (sims_IBD_admix_prop_data.npz) "
+                             "instead of reading the tree sequences again")
     args = parser.parse_args()
+    saved = TABLE_DIR / "sims_IBD_admix_prop_data.npz"
+
+    if args.replot:
+        if not saved.exists():
+            sys.exit(f"Missing {saved}; run once without --replot first.")
+        d = np.load(saved)
+        plot({pop: {m: fit(d[f"{pop}_{k}_x"], d[f"{pop}_{k}_y"]) for k, m in enumerate(MODELS)}
+              for pop in POPS})
+        return
 
     # every model/population must have every replicate
     missing = [p for pop in POPS for m in MODELS for i in range(1, args.reps + 1)
@@ -80,7 +93,7 @@ def main():
                  + "\n  ".join(map(str, missing[:5]))
                  + "\nRun fewer replicates with --reps, or finish the simulations.")
 
-    results, rows = {}, []
+    results, rows, keep = {}, [], {}
     for pop in POPS:
         data = {m: {"x": [], "y": []} for m in MODELS}
         rep_slopes = {m: [] for m in MODELS}
@@ -99,6 +112,9 @@ def main():
                 rep_slopes[m].append(np.polyfit(x, y, 1)[0])
 
         fits = {m: fit(np.array(d["x"]), np.array(d["y"])) for m, d in data.items()}
+        for k, m in enumerate(MODELS):
+            keep[f"{pop}_{k}_x"] = np.array(data[m]["x"])
+            keep[f"{pop}_{k}_y"] = np.array(data[m]["y"])
 
         # pooled interaction test, as in the notebook
         df = pd.concat([pd.DataFrame({"IBD": data[m]["y"], "Prop": data[m]["x"],
@@ -132,7 +148,11 @@ def main():
 
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(rows).to_csv(TABLE_DIR / "sims_IBD_admix_prop_stats.csv", index=False)
+    np.savez_compressed(saved, **keep)
+    plot(results)
 
+
+def plot(results):
     # shared y range across panels: 0 to the highest band + 5%
     highest = max(f[3].max() for fits in results.values() for f in fits.values())
     lowest = min(f[2].min() for fits in results.values() for f in fits.values())
@@ -148,7 +168,7 @@ def main():
         ax.set_ylim(min(0, lowest - pad), highest + pad)
 
     fig.supxlabel("European admixture proportion", fontsize=12)
-    fig.supylabel("IBD shared with other individuals in the population (cM)", fontsize=12)
+    fig.supylabel("Total IBD shared with other haplotypes (cM, per 50 Mb)", fontsize=12)
     handles = [Line2D([0], [0], color=MODELS[m][2], lw=2, label=m) for m in MODELS]
     fig.legend(handles=handles, loc="center left", bbox_to_anchor=(1.0, 0.5), frameon=False)
     plt.tight_layout(rect=[0, 0, 0.98, 1])

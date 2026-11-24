@@ -146,7 +146,7 @@ def plot(args, fits):
         ax.set_xlim(xmin, xmax)
         ax.set_ylim(ymin, ymax)
         ax.set_xlabel("European admixture proportion", fontsize=18)
-        ax.set_ylabel("IBD shared with other individuals (cM)", fontsize=18)
+        ax.set_ylabel("Total IBD shared with other haplotypes (cM, per 50 Mb)", fontsize=18)
         ax.tick_params(labelsize=14)
         # inside, upper left (white box so it stays readable over a band)
         ax.legend(loc="upper left", fontsize=14, frameon=True, facecolor="white", framealpha=0.9)
