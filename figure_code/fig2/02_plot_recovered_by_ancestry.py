@@ -94,8 +94,8 @@ def main() -> None:
     if not handles:
         sys.exit(f"No input found in {RECOVERED_DIR}")
 
-    plt.xlabel("Number of individuals sampled", fontsize=12)
-    plt.ylabel("Total archaic sequence recovered (bp)", fontsize=12)
+    plt.xlabel("Number of individuals sampled", fontsize=16)
+    plt.ylabel("Total archaic sequence recovered (bp)", fontsize=16)
     plt.gca().yaxis.set_major_formatter(FuncFormatter(sci_formatter))
     plt.ylim(bottom=0)
     plt.legend(handles=handles, title="Population / Source", frameon=False)
