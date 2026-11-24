@@ -540,3 +540,13 @@ sources; the Skov (2024) calls are CC BY 4.0.
 ## Contact
 
 Abigail Kuntzleman — questions welcome via the Issues tab.
+
+## Checks against the original code
+
+`checks/` runs the original notebook and script code (copied unchanged apart from input paths) on the current inputs and compares it with the repository's outputs:
+
+| Script | Checks | Run |
+|---|---|---|
+| `checks/check_fig3_fig4.py` | Fig 3 / S4 per-pair IBD and means; Fig 4 / S6 / S8 IBD_bar_i, ancestry proportions, regression stats | `sbatch -J check_fig3_fig4 run.script checks/check_fig3_fig4.py` |
+| `checks/check_fig2.py` | Fig 2 curves at x = 1, 2, 5, 10, n/2, n | `sbatch -J check_fig2 run.script checks/check_fig2.py` |
+| `checks/check_table1_s7.py` | Table 1 shared archaic column; S7 old vs new ratio summaries | `python checks/check_table1_s7.py` |

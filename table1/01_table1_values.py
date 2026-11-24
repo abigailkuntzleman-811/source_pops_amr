@@ -35,6 +35,7 @@ Output:
 """
 
 import argparse
+import os
 import re
 import sys
 from collections import defaultdict
@@ -54,48 +55,68 @@ POP_NAMES = {
     "PUR": "Puerto Ricans (PUR)",
 }
 
-PAIRWISE_RE = re.compile(r"^([A-Z]+)_\{([A-Z]+)\}\.txt$")
-WITHIN_RE = re.compile(r"^all_([A-Z]+)\.txt$")
 
 
-def get_distributions(archaic: str) -> pd.DataFrame:
-    """Long-form frame of every haplotype-pair sharing value."""
-    input_dir = PAIRWISE_DIR / archaic
-    if not input_dir.is_dir():
+# get_distributions is copied from Chapter_1.ipynb (cell 17), with only the
+# input directory taken from config. Note that a line with two fields (a pair
+# with no third column) counts as 0, as in the original.
+def get_distributions(archaic_type):
+    input_dir = str(PAIRWISE_DIR / archaic_type)
+    if not os.path.isdir(input_dir):
         sys.exit(
             f"Missing input directory: {input_dir}\n"
-            f"Run: bash fig1/03_pairwise_sharing.sh {archaic}"
+            f"Run: bash fig1/03_pairwise_sharing.sh {archaic_type}"
         )
 
-    values = defaultdict(list)
+    all_values = defaultdict(list)
 
-    for path in sorted(input_dir.iterdir()):
-        m = PAIRWISE_RE.match(path.name)
-        if m:
-            key = f"{m.group(1)}-{m.group(2)}"
-        else:
-            m = WITHIN_RE.match(path.name)
-            if not m:
-                continue
-            key = f"{m.group(1)}-{m.group(1)}"
+    for fname in os.listdir(input_dir):
+        filepath = os.path.join(input_dir, fname)
 
-        with open(path) as f:
-            for line in f:
-                parts = line.strip().split("\t")
-                if len(parts) == 3:
-                    values[key].append(int(parts[2]))
+        # Match format like CLM_{ITU}.txt
+        match_pairwise = re.match(r"^([A-Z]+)_\{([A-Z]+)\}\.txt$", fname)
+        if match_pairwise:
+            subpop1, subpop2 = match_pairwise.groups()
+            pair_key = f"{subpop1}-{subpop2}"
 
-    rows = [(pair, v) for pair, vals in values.items() for v in vals]
-    if not rows:
-        sys.exit(f"No sharing values parsed from {input_dir}")
-    return pd.DataFrame(rows, columns=["subpop_pair", "value"])
+            with open(filepath) as f:
+                for line in f:
+                    parts = line.strip().split("\t")
+                    if len(parts) < 2:
+                        continue
+                    value = int(parts[2]) if len(parts) == 3 else 0
+                    all_values[pair_key].append(value)
+            continue
+
+        # Match format like all_MXL.txt
+        match_all = re.match(r"^all_([A-Z]+)\.txt$", fname)
+        if match_all:
+            subpop = match_all.group(1)
+            pair_key = f"{subpop}-{subpop}"
+
+            with open(filepath) as f:
+                for line in f:
+                    parts = line.strip().split("\t")
+                    if len(parts) < 2:
+                        continue
+                    value = int(parts[2]) if len(parts) == 3 else 0
+                    all_values[pair_key].append(value)
+
+    # Make long-form DataFrame
+    rows = []
+    for pair, values in all_values.items():
+        for v in values:
+            rows.append((pair, v))
+
+    df = pd.DataFrame(rows, columns=["subpop_pair", "value"])
+    return df
 
 
 def summarize_pairwise_sharing(df: pd.DataFrame, subpop_pair: str,
                                exclude_zeros: bool = False):
     """Mean and sample SD of shared bp for one population pair.
 
-    Mirrors summarize_pairwise_sharing in Chapter_1.ipynb (cell 13).
+    Same calculation as summarize_pairwise_sharing in Chapter_1.ipynb (cell 16).
     """
     vals = df.loc[df["subpop_pair"] == subpop_pair, "value"]
     if exclude_zeros:

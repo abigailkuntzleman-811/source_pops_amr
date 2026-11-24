@@ -14,9 +14,9 @@ tskit>=0.5            # simulations, Figures 6, S5, S9
 msprime>=1.2          # simulations
 demes>=0.2            # simulations
 upsetplot>=0.9        # UpSet plot
+seaborn>=0.12         # Figure S7
 
 # Used only in Chapter_1.ipynb:
-# seaborn>=0.12
 # scikit-posthocs>=0.7
 
 # Non-Python requirements:

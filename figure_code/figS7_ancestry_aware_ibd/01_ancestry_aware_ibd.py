@@ -54,7 +54,6 @@ from config import AMR_POPS, CHROMOSOMES, FIGURE_DIR, LAI_BED_DIR, TABLE_DIR  # 
 _fig3 = __import__("01_within_population_ibd")
 
 ANCESTRIES = ["EUR", "AMR", "AFR"]
-COLORS = {"EUR": "#1f77b4", "AMR": "#daa520", "AFR": "#7b3f99"}
 
 
 def load_lai(pop, keep_ids):
@@ -180,20 +179,49 @@ def main() -> None:
 
 
 def plot(pops, ratios_for_plot):
-    # distributions of non-zero ratios, log x axis, as in the original figure
-    fig, axes = plt.subplots(2, 2, figsize=(12, 8), sharex=True, sharey=True)
-    nonzero = np.concatenate([v for v in ratios_for_plot.values() if len(v)])
-    bins = np.logspace(np.log10(nonzero.min()), 0, 60) if len(nonzero) else 60
-    for ax, pop in zip(axes.flat, pops):
+    """Histogram panel from the plotting cell of Chapter_1.ipynb (cell 91),
+    unchanged apart from reading the ratios computed above and the font sizes.
+    Only non-zero ratios are drawn, as in the original."""
+    import seaborn as sns
+
+    POPS = pops
+    palette = {"EUR": "#1f77b4", "AMR": "#daa520", "AFR": "#7b3f99"}
+    data = {}
+    for pop in POPS:
+        frames = []
         for anc in ANCESTRIES:
-            v = ratios_for_plot.get((pop, anc), np.array([]))
-            if len(v):
-                ax.hist(v, bins=bins, histtype="step", density=True, color=COLORS[anc], label=anc, linewidth=1.5)
-        ax.set_xscale("log")
+            df = pd.DataFrame({"ratio": ratios_for_plot.get((pop, anc), np.array([]))})
+            df["ancestry"] = anc
+            frames.append(df[["ancestry", "ratio"]])
+        data[pop] = pd.concat(frames, ignore_index=True)
+
+    # ---- 2x2 panel of histograms (non-zero only) ----
+    fig, axes = plt.subplots(2, 2, figsize=(12, 8), sharex=True, sharey=True)
+    for ax, pop in zip(axes.flat, POPS):
+        nz = data[pop][data[pop]["ratio"] > 0]
+        sns.histplot(
+            data=nz,
+            x="ratio",
+            hue="ancestry",
+            hue_order=ANCESTRIES,
+            palette=palette,
+            bins=60,
+            log_scale=(True, False),
+            element="step",
+            stat="density",
+            common_norm=False,
+            ax=ax,
+            legend=(ax is axes.flat[0]),
+        )
         ax.set_title(pop, fontsize=18)
-    for ax in axes.flat:
+        ax.set_xlabel("")
+        ax.set_ylabel("")
         ax.tick_params(axis="both", labelsize=14)
-    axes.flat[0].legend(frameon=False, fontsize=15)
+    leg = axes.flat[0].get_legend()
+    if leg is not None:
+        plt.setp(leg.get_texts(), fontsize=15)
+        plt.setp(leg.get_title(), fontsize=15)
+
     fig.supxlabel("Proportion of shared ancestry between a haplotype pair that is IBD (bp)", fontsize=17)
     fig.supylabel("Density", fontsize=17)
     fig.tight_layout()

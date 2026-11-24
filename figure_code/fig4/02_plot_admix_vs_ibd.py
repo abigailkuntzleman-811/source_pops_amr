@@ -31,6 +31,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.stats import linregress, spearmanr
+from scipy.stats import t as t_dist
 
 _root = next(p for p in Path(__file__).resolve().parents
              if (p / "config.py").exists())
@@ -150,28 +151,33 @@ def main() -> None:
             ax.set_title(f"{label}\n(insufficient data)")
             continue
 
-        ax.scatter(x, y, s=18, alpha=args.alpha, color=COLORS[pop], linewidths=0)
+        ax.scatter(x, y, s=18, alpha=args.alpha, color=COLORS[pop])
 
+        # regression, band and title exactly as admix_prop_vs_ibd in
+        # Chapter_1.ipynb (cell 62)
         result = linregress(x, y)
+        m, b = result.slope, result.intercept
         rho, p_spearman = spearmanr(x, y)
 
-        x_line = np.linspace(x.min(), x.max(), 100)
-        y_line = result.slope * x_line + result.intercept
-        ax.plot(x_line, y_line, color=COLORS[pop], linewidth=2)
-
-        # 95% band around the fitted line
+        # --- 95% confidence band for the regression line ---
         n = len(x)
         x_mean = x.mean()
-        ci = 1.96 * result.stderr * np.sqrt(
-            1 / n + (x_line - x_mean) ** 2 / np.sum((x - x_mean) ** 2)
-        )
-        ax.fill_between(x_line, y_line - ci, y_line + ci,
-                        color=COLORS[pop], alpha=0.2)
+        Sxx = np.sum((x - x_mean) ** 2)
+        residual_std = np.sqrt(np.sum((y - (m * x + b)) ** 2) / (n - 2))
+        t_crit = t_dist.ppf(0.975, df=n - 2)
 
+        x_line = np.linspace(x.min(), x.max(), 100)
+        y_line = m * x_line + b
+        se_line = residual_std * np.sqrt(1/n + (x_line - x_mean)**2 / Sxx)
+
+        ax.fill_between(x_line, y_line - t_crit * se_line, y_line + t_crit * se_line,
+                        color=COLORS[pop], alpha=0.2)
+        ax.plot(x_line, y_line, color=COLORS[pop], linewidth=2)
+
+        # title: red if significant
         significant = p_spearman < 0.05
-        star = " *" if significant else ""
         p_str = f"{p_spearman:.2e}" if significant else f"{p_spearman:.2f}"
-        ax.set_title(f"{label}{star}\n$\\rho$ = {rho:.2f}, p = {p_str}",
+        ax.set_title(f"{label}\n$\\rho$ = {rho:.2f}, p = {p_str}",
                      color="red" if significant else "black")
 
         ax.set_xlim(0, 1)
