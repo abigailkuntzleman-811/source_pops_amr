@@ -23,6 +23,7 @@ which assumes both were derived from the same phased haplotypes.
 
 Usage:
     python figure_code/figS7_ancestry_aware_ibd/01_ancestry_aware_ibd.py
+    python figure_code/figS7_ancestry_aware_ibd/01_ancestry_aware_ibd.py --replot   # redraw only
 
 Output ($TABLE_DIR, and the figure in $FIGURE_DIR):
     ancestry_aware_ibd_<POP>.csv.gz     one row per haplotype pair: shared bp and
@@ -88,7 +89,18 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--pops", nargs="+", default=AMR_POPS)
+    p.add_argument("--replot", action="store_true",
+                   help="redraw from the saved ratios (ancestry_aware_ibd_ratios.npz) without recomputing")
     args = p.parse_args()
+
+    if args.replot:
+        saved = TABLE_DIR / "ancestry_aware_ibd_ratios.npz"
+        if not saved.exists():
+            sys.exit(f"Missing {saved}; run once without --replot first.")
+        d = np.load(saved)
+        FIGURE_DIR.mkdir(parents=True, exist_ok=True)
+        plot(args.pops, {(k.split("_", 1)[0], k.split("_", 1)[1]): d[k] for k in d.files})
+        return
 
     pop_of = _fig3.load_population_map()
     related = _fig3.load_related_samples()
@@ -161,24 +173,33 @@ def main() -> None:
     summary.to_csv(TABLE_DIR / "ancestry_aware_ibd_summary.csv", index=False)
     print("\n" + summary.to_string(index=False))
 
+    np.savez_compressed(TABLE_DIR / "ancestry_aware_ibd_ratios.npz",
+                        **{f"{pop}_{anc}": v for (pop, anc), v in ratios_for_plot.items()})
+    plot(args.pops, ratios_for_plot)
+    print(f"wrote ancestry_aware_ibd_<POP>.csv.gz and ancestry_aware_ibd_summary.csv to {TABLE_DIR}")
+
+
+def plot(pops, ratios_for_plot):
     # distributions of non-zero ratios, log x axis, as in the original figure
     fig, axes = plt.subplots(2, 2, figsize=(12, 8), sharex=True, sharey=True)
     nonzero = np.concatenate([v for v in ratios_for_plot.values() if len(v)])
     bins = np.logspace(np.log10(nonzero.min()), 0, 60) if len(nonzero) else 60
-    for ax, pop in zip(axes.flat, args.pops):
+    for ax, pop in zip(axes.flat, pops):
         for anc in ANCESTRIES:
             v = ratios_for_plot.get((pop, anc), np.array([]))
             if len(v):
                 ax.hist(v, bins=bins, histtype="step", density=True, color=COLORS[anc], label=anc, linewidth=1.5)
         ax.set_xscale("log")
-        ax.set_title(pop)
-    axes.flat[0].legend(frameon=False)
-    fig.supxlabel("Proportion of shared ancestry between a haplotype pair that is IBD (bp)")
-    fig.supylabel("Density")
+        ax.set_title(pop, fontsize=18)
+    for ax in axes.flat:
+        ax.tick_params(axis="both", labelsize=14)
+    axes.flat[0].legend(frameon=False, fontsize=15)
+    fig.supxlabel("Proportion of shared ancestry between a haplotype pair that is IBD (bp)", fontsize=17)
+    fig.supylabel("Density", fontsize=17)
     fig.tight_layout()
     out = FIGURE_DIR / "ancestry_aware_ibd_ratios.png"
     fig.savefig(out, dpi=200, bbox_inches="tight")
-    print(f"\nwrote {out}\nwrote ancestry_aware_ibd_<POP>.csv.gz and ancestry_aware_ibd_summary.csv to {TABLE_DIR}")
+    print(f"wrote {out}")
 
 
 if __name__ == "__main__":

@@ -109,8 +109,8 @@ def main():
             plt.fill_between(x, mean - 1.96 * se, mean + 1.96 * se, color=COLORS[pop], alpha=0.2)
             print(f"{pop} {background}: done", flush=True)
 
-    plt.xlabel("Number of Individuals")
-    plt.ylabel("Recovered Archaic Sequence (bp)")
+    plt.xlabel("Number of Individuals", fontsize=16)
+    plt.ylabel("Recovered Archaic Sequence (bp)", fontsize=16)
     plt.ylim(0, 2.1e7)
     plt.gca().yaxis.set_major_formatter(FuncFormatter(sci_label))
     plt.legend()

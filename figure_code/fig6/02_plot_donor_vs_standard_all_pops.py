@@ -167,8 +167,8 @@ def plot(results):
         ax.set_title(pop)
         ax.set_ylim(min(0, lowest - pad), highest + pad)
 
-    fig.supxlabel("European admixture proportion", fontsize=12)
-    fig.supylabel("Total IBD shared with other haplotypes (cM, per 50 Mb)", fontsize=12)
+    fig.supxlabel("European admixture proportion", fontsize=16)
+    fig.supylabel("Total IBD shared with other haplotypes (cM, per 50 Mb)", fontsize=16)
     handles = [Line2D([0], [0], color=MODELS[m][2], lw=2, label=m) for m in MODELS]
     fig.legend(handles=handles, loc="center left", bbox_to_anchor=(1.0, 0.5), frameon=False)
     plt.tight_layout(rect=[0, 0, 0.98, 1])
