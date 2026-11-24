@@ -95,6 +95,37 @@ relying on the environment, or pass `--export` to `sbatch`.
 
 ---
 
+## Every figure and table, and the script that makes it
+
+Scripts are under `figure_code/` unless shown otherwise. Supplementary figures
+that share code with a main figure live in that figure's folder.
+
+| Paper item | Script | Output file (as in the manuscript) |
+|---|---|---|
+| Figure 1 | `fig1/04_heatmap.py figure` | `shared_heatmap.png` |
+| Figure 2 | `fig2/02_plot_recovered_by_ancestry.py` | `real_recovered_from_eur_amr.png` |
+| Figure 3 | `fig3/02_plot_ibd_vs_archaic.py` | `archaic_share_vs_ibd.png` |
+| Figure 4 | `fig4/02_plot_admix_vs_ibd.py --ancestry EUR` | `EUR_prop_admix_by_ibd.png` |
+| Figure 5 | `fig5/01_plot_pca.py` | `european_pca_v2.png` |
+| Figure 6 | `fig6/01_plot_donor_ibd.py` | `mxl_IBD_progressive_MXL_step4_plus_six.png` |
+| Figure S1 | demographic models in `data/demographic_models/` | `sims.png` |
+| Figure S2 | `figS2_hmmix_recovered/02_plot_recovered_from_hmmix.py` | `combined_hmmix_recovered.png` |
+| Figure S3 | `figS3_sim_recovered/02_plot_sim_recovered.py` | `simulated_recovered_amr_eur_yay.png` |
+| Figure S4 | `figS4_ibd_boxplots/01_plot_real_ibd_per_pair.py` (statistics: `02_stats.py`) | `IBD_boxplots_excludes0s.png` |
+| Figure S5 | `fig6/03_plot_sim_ibd_per_pair.py` (statistics: `fig6/04_sim_ibd_stats.py`) | `IBD_simmed_boxplots.png` |
+| Figure S6 | `fig4/02_plot_admix_vs_ibd.py --ancestry AMR` | `AMR_prop_admix_by_ibd.png` |
+| Figure S7 | `figS7_ancestry_aware_ibd/01_ancestry_aware_ibd.py` | `ancestry_aware_ibd_ratios.png` |
+| Figure S8 | `fig4/02_plot_admix_vs_ibd.py --ancestry AFR` | `AFR_prop_admix_by_ibd.png` |
+| Figure S9 | `fig6/02_plot_donor_vs_standard_all_pops.py` | `sims_IBD_admix_prop.png` |
+| Table 1 | `table1/` | |
+| UpSet plot | `upset/01_upset_shared_unique.py` | `upset_all.png` |
+| Masked IBD regions (table) | `hapIBD_calls/04_masked_regions_table.py` | `ibd_peaks_masked_table.tex` |
+| Reviewer analysis (table) | `archaic_by_background/01_shared_unique_by_background.py` | `archaic_by_background_<POP>.csv` |
+
+Each figure's section below lists its inputs and the steps before it.
+
+---
+
 ## Figure 1 — shared archaic ancestry heatmap
 
 ```bash
@@ -266,7 +297,7 @@ python figure_code/fig4/02_plot_admix_vs_ibd.py     # -> results/figures/
 
 | Paper item | Command |
 |---|---|
-| Figure 4 | `python figure_code/fig4/02_plot_admix_vs_ibd.py` |
+| Figure 4, S6, S8 | `python figure_code/fig4/02_plot_admix_vs_ibd.py --ancestry EUR` (`AMR` for S6, `AFR` for S8) |
 
 The IBD average here is per individual, over the unrelated members of the
 population: total cM shared with everyone else, divided by (n - 1). That is a
