@@ -37,7 +37,7 @@ import pandas as pd
 import statsmodels.api as sm
 import tskit
 from matplotlib.lines import Line2D
-from scipy.stats import ttest_rel
+from scipy.stats import ttest_ind
 
 _root = next(p for p in Path(__file__).resolve().parents if (p / "config.py").exists())
 sys.path.insert(0, str(_root))
@@ -122,9 +122,11 @@ def main():
         df["Interaction"] = df["Prop"] * df["Pop"]
         interact = sm.OLS(df["IBD"], sm.add_constant(df[["Prop", "Pop", "Interaction"]])).fit()
 
-        # replicate-level test: paired difference in slope per replicate
+        # replicate-level test: the donor and standard replicates are separate,
+        # unrelated simulations, so compare their slopes with an unpaired
+        # Welch t-test (one slope per replicate)
         diff = np.array(rep_slopes["Donor"]) - np.array(rep_slopes["Standard"])
-        paired_p = ttest_rel(rep_slopes["Donor"], rep_slopes["Standard"]).pvalue if args.reps > 1 else np.nan
+        paired_p = ttest_ind(rep_slopes["Donor"], rep_slopes["Standard"], equal_var=False).pvalue if args.reps > 1 else np.nan
 
         results[pop] = fits
         row = {"pop": pop}
@@ -136,7 +138,7 @@ def main():
             row[f"{m.lower()}_rep_slope_sd"] = np.std(rep_slopes[m], ddof=1) if args.reps > 1 else np.nan
         row["pooled_interaction_p"] = interact.pvalues["Interaction"]
         row["slope_diff_rep_mean"] = diff.mean()
-        row["replicate_paired_p"] = paired_p
+        row["replicate_welch_p"] = paired_p
         rows.append(row)
 
         print(f"{pop}:")
@@ -144,7 +146,7 @@ def main():
             print(f"  {m}: R² = {fits[m][4].rsquared:.3f}, slope = {fits[m][4].params[1]:.2f} cM, "
                   f"p = {fits[m][4].pvalues[1]:.3e}")
         print(f"  slope difference: pooled interaction p = {interact.pvalues['Interaction']:.3e}, "
-              f"replicate-paired p = {paired_p:.3e}\n")
+              f"replicate-level Welch p = {paired_p:.3e}\n")
 
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(rows).to_csv(TABLE_DIR / "sims_IBD_admix_prop_stats.csv", index=False)
