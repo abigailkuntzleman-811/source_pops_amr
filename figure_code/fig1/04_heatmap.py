@@ -52,33 +52,28 @@ CMAP = LinearSegmentedColormap.from_list("fig1", [
 ])
 
 
-def get_averages(path: Path):
-    """Mean shared bp over haplotype pairs in one comparison file.
-
-    Returns (n_pairs, mean_all, n_zero_pairs, mean_given_sharing).
-    Only lines where both IDs carry the "sorted" prefix are counted, matching
-    the original analysis.
-    """
-    values = []
-    no_share = 0
-
-    with open(path) as f:
-        for line in f:
-            parts = line.strip().split()
-            if len(parts) != 3:
-                continue
-            id1, id2, n = parts[0], parts[1], int(parts[2])
-            if "sorted" in id1 and "sorted" in id2:
-                values.append(n)
-                if n == 0:
+# get_averages is copied unchanged from Chapter_1.ipynb (cell 8), so the
+# numbers are identical to the original analysis.
+#returns # of pairs, average of all pairs, # of pairs that have no sharing, average of pairs conditioned on sharing
+def get_averages(filename):
+    with open(filename, 'r') as file:
+        integers = []
+        no_share = 0
+        for line in file:
+            line = line.strip().split()
+            id1 = line[0]
+            id2 = line[1]
+            if len(line) == 3:
+                num_intersect = int(line[2])
+            if 'sorted' in id1 and 'sorted' in id2:
+                integers.append(num_intersect)
+                if num_intersect == 0:
                     no_share += 1
+        nonzero = [x for x in integers if x > 0]
+        avg_cond_on_share = sum(nonzero) / len(nonzero) if nonzero else 0
 
-    if not values:
-        return 0, 0.0, 0, 0.0
-
-    nonzero = [v for v in values if v > 0]
-    mean_cond = sum(nonzero) / len(nonzero) if nonzero else 0.0
-    return len(values), sum(values) / len(values), no_share, mean_cond
+        # #pairs, average of all pairs, # of pairs that have no sharing, average of pairs conditioned on sharing
+        return len(integers), sum(integers)/len(integers), no_share, avg_cond_on_share
 
 
 def build_matrix(archaic: str) -> np.ndarray:
