@@ -16,6 +16,7 @@ Output:
 """
 
 import argparse
+import math
 import sys
 from pathlib import Path
 
@@ -114,6 +115,17 @@ def build_matrix(archaic: str) -> np.ndarray:
     return matrix
 
 
+def sci_label(x, _pos):
+    """3500000 -> 3.5 x 10^6 (same style as Figures 3 and S3)."""
+    if x == 0:
+        return "0"
+    e = int(math.floor(math.log10(abs(x))))
+    m = round(x / 10 ** e, 2)
+    if m == 10:
+        m, e = 1, e + 1
+    return rf"${m:g} \times 10^{{{e}}}$"
+
+
 def plot_comparisons(matrix: np.ndarray, archaic: str, out_path: Path) -> None:
     """Lower-triangle heatmap, matching the figure in the paper."""
     fig, ax = plt.subplots()
@@ -129,9 +141,9 @@ def plot_comparisons(matrix: np.ndarray, archaic: str, out_path: Path) -> None:
     ax.set_yticks(range(len(SUB_POPS)), labels=SUB_POPS, fontsize=12)
 
     cbar = fig.colorbar(im, ax=ax)
-    cbar.ax.yaxis.set_major_formatter(
-        mticker.FuncFormatter(lambda x, _: f"{x / 1e6:.1f}×10⁶")
-    )
+    # each tick in scientific notation (the Denisovan values are an order of
+    # magnitude smaller, so a fixed x10^6 gave labels like 0.3x10^6)
+    cbar.ax.yaxis.set_major_formatter(mticker.FuncFormatter(sci_label))
 
     plt.title(archaic.capitalize(), fontsize=16)
     fig.tight_layout()
