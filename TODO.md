@@ -23,7 +23,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 
 ## 2. Statistics
 
-- [ ] Redo the tests on IBD distributions for S4 and S5. S4 done (bootstrap over individuals, `02_stats.py`): mean over all pairs, every admixed population > IBS (PUR +4.97 cM, CLM +3.50, both Holm p < 0.001; MXL +0.16, p = 0.004; PEL +0.11, p = 0.006); mean over pairs with IBD, PUR and CLM ~2.5x IBS (p < 0.001), MXL +1.1 cM (p = 0.025), PEL = IBS (p = 1.0). So the S4 caption "all differ from IBS except MXL" no longer holds: all four differ, MXL and PEL only slightly. Optional: `--all-pairs` (not yet run). S5 done (`fig6/04_sim_ibd_stats.py`, one value per replicate, paired with IBS from the same replicate, Wilcoxon signed-rank, Holm): mean over all pairs, every simulated admixed population is LOWER than simulated IBS (CLM 0.030, MXL 0.023, PEL 0.027, PUR 0.036 vs IBS 0.049 cM per pair per 50 Mb; all p < 0.001), the opposite direction from the real data in S4; mean over pairs with IBD, admixed slightly higher (4.1-4.4 vs 3.9 cM, p < 0.001). With 1000 replicates p values are tiny; report direction and size. All-pairs means scale with the 50 Mb region, so compare within S5 only
+- [x] S4 and S5 statistics redone and in the captions (S4: bootstrap over individuals; S5: one value per replicate, Wilcoxon signed-rank vs IBS from the same replicate; both Holm-corrected; `figS4_ibd_boxplots/02_stats.py`, `fig6/04_sim_ibd_stats.py`)
 - [ ] S9 caption/Results: report the replicate-paired p for the slope difference (not the pooled interaction p), and the slopes themselves (e.g. PUR donor 7.93 vs standard 2.99 cM; with 1000 replicates any real difference gives a tiny p)
 
 ## 3. New analyses and additions
@@ -61,7 +61,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [ ] Table 1: European admixture comes from the joint-caller LAI calls while shared Neanderthal ancestry comes from hmmix; resolve or state clearly
 - [ ] Methods: resolve the note to Jazeps on PEL counts (89 admixed PEL = 122 total - 33 used as the Indigenous American reference panel)
 - [ ] Replicate counts in captions: S9 says 100 (now 1000); S3 says 100 (now 1000); check Fig 6; S5 says 1000 (correct)
-- [ ] S4 caption: say what the boxes show (zero-IBD pairs excluded, whiskers 1.5x IQR) and the unit of a pair; S5: pairs are haplotype pairs
+- [x] S4 and S5 captions: boxes, whiskers, haplotype pairs, zero pairs, tables
 - [ ] Fig 6 and S9 captions: y axis is total IBD each simulated haploid genome shares with the other 99 in its population, over a 50 Mb simulated region
 - [ ] Fix cross-references: `Figure 3\ref{archaic_share_ibd}` prints "Figure 3 3" (Methods and Results); Discussion `Figure 3\label{archaic_share_ibd}` (\label should be \ref); Discussion sentence on EUR admixture vs IBD cites `\ref{eur_amr_recovered}` (Fig 2) instead of Fig 4
 
