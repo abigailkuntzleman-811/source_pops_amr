@@ -14,17 +14,17 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [x] Fig 3: rerun with masked IBD and KING unrelated set, and upload to Overleaf
 - [x] S7: run `figure_code/figS7_ancestry_aware_ibd/01_ancestry_aware_ibd.py` (masked IBD, new LAI, KING set), new table, and upload to Overleaf
 - [x] S4: masked IBD and KING unrelated set (`figure_code/figS4_ibd_boxplots/01_plot_real_ibd_per_pair.py`), new table, and upload to Overleaf
-- [ ] Fig 6 and S9: rerun with the repo scripts (`figure_code/fig6/01_plot_donor_ibd.py`, `02_plot_donor_vs_standard_all_pops.py`; IBD fix, tract-overlap fix, 1000 replicates) and upload to Overleaf. The current Overleaf Fig 6 is the notebook version (old IBD calculation, 100 replicates)
-- [ ] Upload the remaining regenerated figures to Overleaf (Fig 6, S9)
+- [x] Fig 6 and S9: rerun with the repo scripts (IBD fix, tract-overlap fix, 1000 replicates) and upload to Overleaf
+- [x] Upload the remaining regenerated figures to Overleaf (Fig 6, S9)
 
 ## 2. Statistics
 
-- [ ] Redo the tests on IBD distributions for S4 and S5 (S4 caption currently says all admixed populations differ from IBS except MXL, from the old pair-level tests on the old data). Scripts written and tested: S4 `figure_code/figS4_ibd_boxplots/02_stats.py` (bootstrap over individuals); S5 rerun `03_plot_sim_ibd_per_pair.py` (now saves per-replicate means), then `figure_code/fig6/04_sim_ibd_stats.py` (one value per replicate, paired with IBS from the same replicate). Each admixed population vs IBS, mean with and without zero pairs, Holm-corrected
-- [ ] S9: report the replicate-level test of the slope difference (`sims_IBD_admix_prop_stats.csv`) rather than the pooled interaction p-value
+- [ ] Redo the tests on IBD distributions for S4 and S5. S4 done (bootstrap over individuals, `02_stats.py`): mean over all pairs, every admixed population > IBS (PUR +4.97 cM, CLM +3.50, both Holm p < 0.001; MXL +0.16, p = 0.004; PEL +0.11, p = 0.006); mean over pairs with IBD, PUR and CLM ~2.5x IBS (p < 0.001), MXL +1.1 cM (p = 0.025), PEL = IBS (p = 1.0). So the S4 caption "all differ from IBS except MXL" no longer holds: all four differ, MXL and PEL only slightly. Optional: `--all-pairs` (not yet run). S5: run `figure_code/fig6/04_sim_ibd_stats.py` (S5 rerun done)
+- [ ] S9 caption/Results: report the replicate-paired p for the slope difference (not the pooled interaction p), and the slopes themselves (e.g. PUR donor 7.93 vs standard 2.99 cM; with 1000 replicates any real difference gives a tiny p)
 
 ## 3. New analyses and additions
 
-- [ ] Reviewer request: shared vs unique archaic ancestry on European vs Indigenous tracts within each population. Script written and tested: run `sbatch --array=0-3 figure_code/archaic_by_background/01_shared_unique_by_background.script` (20 haplotypes per background, 100 random picks, 1000 label shuffles)
+- [ ] Reviewer request: shared vs unique archaic ancestry on European vs Indigenous tracts. Run and done; add the supplementary table and the response. Of archaic sequence: ~20% shared between backgrounds vs ~50% if ancestry did not matter (p < 0.001 in all four populations); EUR-only 45-49% vs AMR-only 30-36%; results in `archaic_by_background_<POP>.csv`. Note the noisy local ancestry pushes toward the null, so the real effect is likely larger
 - [ ] Add the UpSet plot to the paper
 - [ ] Add the UpSet analysis to the methods and supplement (downsample each population to the smallest sample size, then compute all possible intersections)
 - [ ] Supplementary table of masked pileup regions (`hapIBD_calls/04_masked_regions_table.py` writes CSV and LaTeX)
@@ -34,7 +34,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [ ] Fig 2: interpretation; in the new figure PEL's EUR and AMR curves end nearly equal and PEL's AMR curve is above its EUR curve for most of the range
 - [ ] Fig 4 and abstract: after masking, MXL is weakly positive (rho 0.26) and PEL shows no relationship (rho -0.07); the abstract, Results and Fig 4 caption say no correlation for MXL and a weak negative trend for PEL
 - [ ] Fig 4 storyline: PUR and MXL now have the same rho (0.26, p = 0.007 and 0.038); only CLM is strongly positive (0.77). The "CLM and PUR positive vs MXL and PEL not" contrast (abstract, Results, Discussion) needs rethinking: the split is now CLM vs the rest
-- [ ] Fig 6 / S9 framing: the multiple-donor simulations are framed as explaining MXL's lack of a positive correlation; revisit now that MXL is weakly positive
+- [ ] Fig 6 / S9 framing: the multiple-donor simulations are framed as explaining MXL's lack of a positive correlation; revisit now that MXL is weakly positive. New Fig 6 mean slopes over 1000 replicates (+- SE): standard 0.35 +- 0.07, one donor 5.73 +- 0.09, two donors 2.67 +- 0.08, six donors 0.71 +- 0.07; real MXL slope (Fig 4) is 2.70, close to the two-donor model. Single replicates are noisy (slope SD 2.1-2.8, pooled R2 < 0.08), worth a clause in the caption
 - [ ] S6 caption: MXL no longer positive (rho -0.23, n.s.)
 - [ ] S8 caption and Results/Discussion: "negatively correlated in all populations" no longer holds for MXL (rho 0.11, n.s.)
 - [ ] Fig 3 Results: "MXL has the least amount of IBD sharing of all four admixed groups" no longer holds; PEL is lowest (mean cM per haplotype pair: PEL 0.28, MXL 0.33, CLM 3.67, PUR 5.14)
@@ -63,7 +63,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 ## 6. Checks
 
 - [ ] Table 1: new African proportions (CLM 0.15, PUR 0.20) look high next to published estimates; check the joint caller's reference panels
-- [ ] Masking used the maps in `data/raw/genetic_maps` (not found in the hap-ibd logs); confirm they are the maps hap-ibd used
+- [x] Masking used the maps in `data/raw/genetic_maps`: checked, same as hap-ibd's maps (chr1/chr10 median difference < 0.001 cM); regions before a map's first position (chr14, 15, 22) are extrapolated by hap-ibd
 
 ## 7. Housekeeping
 
