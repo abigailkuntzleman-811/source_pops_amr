@@ -170,8 +170,10 @@ def plot(results):
     fig.supxlabel("European admixture proportion", fontsize=16)
     fig.supylabel("Total IBD shared with other haplotypes (cM, per 50 Mb)", fontsize=16)
     handles = [Line2D([0], [0], color=MODELS[m][2], lw=2, label=m) for m in MODELS]
-    fig.legend(handles=handles, loc="center left", bbox_to_anchor=(1.0, 0.5), frameon=False)
-    plt.tight_layout(rect=[0, 0, 0.98, 1])
+    # inside the upper-left panel, in its upper-left corner
+    axes[0, 0].legend(handles=handles, loc="upper left", fontsize=14,
+                      frameon=True, facecolor="white", framealpha=0.9)
+    plt.tight_layout()
 
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
     out = FIGURE_DIR / "sims_IBD_admix_prop.png"
