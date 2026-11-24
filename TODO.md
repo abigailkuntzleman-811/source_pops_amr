@@ -16,8 +16,10 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [x] S4: masked IBD and KING unrelated set (`figure_code/figS4_ibd_boxplots/01_plot_real_ibd_per_pair.py`), new table, and upload to Overleaf
 - [x] Fig 6 and S9: rerun with the repo scripts (IBD fix, tract-overlap fix, 1000 replicates) and upload to Overleaf
 - [x] Upload the remaining regenerated figures to Overleaf (Fig 6, S9)
-- [ ] Fig 6: bigger, legend inside upper left: `python figure_code/fig6/01_plot_donor_ibd.py` once (saves the data), later style changes with `--replot`; upload
-- [ ] S3: recompute over 1000 replicates (`sbatch --array=1-1000 figure_code/figS3_sim_recovered/01_archaic_by_ancestry.script`, then `02_plot_sim_recovered.py`); upload; caption replicate count (currently 100)
+- [x] Fig 6: bigger, legend inside upper left, y axis from 1, new y label; uploaded
+- [x] S3: recomputed over 1000 replicates; uploaded
+- [x] Fig 1 drawn from code as published (A Neanderthal, B Denisovan; numbers identical to the notebook)
+- [x] Style pass: larger axis labels and text on Fig 1, 2, 3, 6, S3, S4, S5, S7, S9; "per pair" lower case; scientific-notation axes on Fig 1, 3, S3
 
 ## 2. Statistics
 
@@ -58,8 +60,9 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [ ] Clarify where the whole set vs the KING unrelated set is used, with sample sizes: Fig 2 and Table 1 use everyone with LAI calls (CLM 132, MXL 97, PEL 89, PUR 139); IBD analyses use KING unrelated individuals (Fig 4/S6/S8, with LAI: CLM 94, MXL 62, PEL 52, PUR 104)
 - [ ] Table 1: European admixture comes from the joint-caller LAI calls while shared Neanderthal ancestry comes from hmmix; resolve or state clearly
 - [ ] Methods: resolve the note to Jazeps on PEL counts (89 admixed PEL = 122 total - 33 used as the Indigenous American reference panel)
-- [ ] Replicate counts in captions: S9 says 100 (now 1000); check Fig 6; S5 says 1000 (correct)
+- [ ] Replicate counts in captions: S9 says 100 (now 1000); S3 says 100 (now 1000); check Fig 6; S5 says 1000 (correct)
 - [ ] S4 caption: say what the boxes show (zero-IBD pairs excluded, whiskers 1.5x IQR) and the unit of a pair; S5: pairs are haplotype pairs
+- [ ] Fig 6 and S9 captions: y axis is total IBD each simulated haploid genome shares with the other 99 in its population, over a 50 Mb simulated region
 - [ ] Fix cross-references: `Figure 3\ref{archaic_share_ibd}` prints "Figure 3 3" (Methods and Results); Discussion `Figure 3\label{archaic_share_ibd}` (\label should be \ref); Discussion sentence on EUR admixture vs IBD cites `\ref{eur_amr_recovered}` (Fig 2) instead of Fig 4
 
 ## 6. Checks
