@@ -18,6 +18,7 @@ Output:
 
 import argparse
 import itertools
+import math
 import sys
 from pathlib import Path
 
@@ -26,6 +27,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 import pyranges as pr
+from matplotlib.ticker import FuncFormatter
 from upsetplot import UpSet
 
 _root = next(p for p in Path(__file__).resolve().parents if (p / "config.py").exists())
@@ -45,6 +47,17 @@ def load(pop, archaic):
 
 def bp(gr):
     return int(gr.lengths().sum()) if len(gr) > 0 else 0
+
+
+def sci_label(x, _pos):
+    """50000000 -> 5 x 10^7 (same style as the other figures)."""
+    if x == 0:
+        return "0"
+    e = int(math.floor(math.log10(abs(x))))
+    m = round(x / 10 ** e, 2)
+    if m == 10:
+        m, e = 1, e + 1
+    return rf"${m:g} \times 10^{{{e}}}$"
 
 
 def main():
@@ -77,8 +90,11 @@ def main():
     print(f"{args.archaic}: union = {total:,} bp")
     print(table.to_string(index=False))
 
-    UpSet(sizes, sort_by="cardinality", show_percentages=True).plot()
-    plt.suptitle(f"{args.archaic.capitalize()} sequence shared across populations")
+    axes = UpSet(sizes, sort_by="cardinality", show_percentages=True).plot()
+    # bp axes as 5 x 10^7 rather than an offset "1e8"
+    axes["intersections"].yaxis.set_major_formatter(FuncFormatter(sci_label))
+    axes["totals"].xaxis.set_major_formatter(FuncFormatter(sci_label))
+    axes["totals"].tick_params(axis="x", labelrotation=45)
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
     out = FIGURE_DIR / f"upset_{args.archaic}.png"
     plt.savefig(out, dpi=300, bbox_inches="tight")
