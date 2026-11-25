@@ -60,6 +60,17 @@ def sci_label(x, _pos):
     return rf"${m:g} \times 10^{{{e}}}$"
 
 
+# "all" and "neanderthal" are drawn on the same axis ranges so they can be
+# compared by eye; "denisovan" keeps its own (its bars are ~25x smaller).
+SHARED_SCALE = ("all", "neanderthal")
+
+
+def axis_maxima(table):
+    """Largest intersection and largest population total (bp) in a regions table."""
+    totals = [table.loc[table[pop], "bp"].sum() for pop in POPS]
+    return table["bp"].max(), max(totals)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("archaic", choices=["neanderthal", "denisovan", "all"])
@@ -97,6 +108,21 @@ def main():
     axes["totals"].tick_params(axis="x", labelrotation=45)
     # percentage labels above the bars: vertical so neighbouring labels don't overlap
     ax_i = axes["intersections"]
+    ax_t = axes["totals"]
+    if args.archaic in SHARED_SCALE:
+        maxima = [axis_maxima(table)]
+        for other in SHARED_SCALE:
+            path = TABLE_DIR / f"upset_regions_{other}.csv"
+            if other != args.archaic and path.exists():
+                maxima.append(axis_maxima(pd.read_csv(path)))
+            elif other != args.archaic:
+                print(f"note: {path.name} not found yet; run {other} too, then rerun "
+                      f"{args.archaic} so both share the same axes")
+        top_bar = max(m[0] for m in maxima)
+        top_total = max(m[1] for m in maxima)
+        ax_i.set_ylim(0, top_bar * 1.07)
+        lo, hi = ax_t.get_xlim()
+        ax_t.set_xlim((top_total * 1.05, 0) if lo > hi else (0, top_total * 1.05))
     ax_i.set_ylim(0, ax_i.get_ylim()[1] * 1.15)
     gap = 0.01 * ax_i.get_ylim()[1]
     for t in ax_i.texts:
