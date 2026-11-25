@@ -95,6 +95,14 @@ def main():
     axes["intersections"].yaxis.set_major_formatter(FuncFormatter(sci_label))
     axes["totals"].xaxis.set_major_formatter(FuncFormatter(sci_label))
     axes["totals"].tick_params(axis="x", labelrotation=45)
+    # percentage labels above the bars: vertical so neighbouring labels don't overlap
+    ax_i = axes["intersections"]
+    ax_i.set_ylim(0, ax_i.get_ylim()[1] * 1.15)
+    gap = 0.01 * ax_i.get_ylim()[1]
+    for t in ax_i.texts:
+        x, y = t.get_position()
+        t.set_position((x, y + gap))
+        t.set(rotation=90, rotation_mode="anchor", ha="left", va="center", fontsize=9)
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
     out = FIGURE_DIR / f"upset_{args.archaic}.png"
     plt.savefig(out, dpi=300, bbox_inches="tight")
