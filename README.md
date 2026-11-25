@@ -200,6 +200,7 @@ for a in all neanderthal denisovan; do
 done
 python figure_code/figS2_hmmix_recovered/02_plot_recovered_from_hmmix.py   # -> combined_hmmix_recovered.png
 python figure_code/upset/01_upset_shared_unique.py all                      # -> upset_all.png, upset_regions_all.csv
+python figure_code/upset/02_combine_panels.py                              # -> upset_combined.png (A Neanderthal, B Denisovan, C all)
 ```
 
 ---
