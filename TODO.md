@@ -29,9 +29,9 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 
 ## 3. New analyses and additions
 
-- [ ] Reviewer request: shared vs unique archaic ancestry on European vs Indigenous tracts. Run and done; add the supplementary table and the response. Of archaic sequence: ~20% shared between backgrounds vs ~50% if ancestry did not matter (p < 0.001 in all four populations); EUR-only 45-49% vs AMR-only 30-36%; results in `archaic_by_background_<POP>.csv`. Note the noisy local ancestry pushes toward the null, so the real effect is likely larger
-- [ ] Add the UpSet plot to the paper
-- [ ] Add the UpSet analysis to the methods and supplement (downsample each population to the smallest sample size, then compute all possible intersections)
+- [ ] Reviewer request: shared vs unique archaic ancestry on European vs Indigenous tracts. Run and done; supplementary table added (needs its caption; keep `\clearpage` before it), still to do: Methods text and the response to the reviewer. All archaic only (joint-caller calls have no Neanderthal/Denisovan label). Of archaic sequence: ~20% shared between backgrounds vs ~50% if ancestry did not matter (p < 0.001 in all four populations); EUR-only 45-49% vs AMR-only 30-36%; results in `archaic_by_background_<POP>.csv`. Note the noisy local ancestry pushes toward the null, so the real effect is likely larger
+- [x] Add the UpSet plot to the paper (combined A Neanderthal, B Denisovan, C all; `upset_combined.png`)
+- [ ] Add the UpSet analysis to the methods (HMMix calls, mean_prob >= 0.8; each population downsampled to 97 individuals, seed 42; all 15 intersections as % of the union; "all" includes segments not assigned to Neanderthal or Denisovan); caption: A and C share axis ranges, B has its own
 - [ ] Supplementary table of masked pileup regions (`hapIBD_calls/04_masked_regions_table.py` writes CSV and LaTeX)
 
 ## 4. Results and interpretation (after figures are final)
