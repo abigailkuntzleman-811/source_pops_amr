@@ -180,7 +180,8 @@ def main() -> None:
 
 def plot(pops, ratios_for_plot):
     """Histogram panel from the plotting cell of Chapter_1.ipynb (cell 91),
-    unchanged apart from reading the ratios computed above and the font sizes.
+    unchanged apart from reading the ratios computed above, the font sizes and
+    unfilled outlines (fill=False).
     Only non-zero ratios are drawn, as in the original."""
     import seaborn as sns
 
@@ -208,6 +209,8 @@ def plot(pops, ratios_for_plot):
             bins=60,
             log_scale=(True, False),
             element="step",
+            fill=False,
+            linewidth=1.5,
             stat="density",
             common_norm=False,
             ax=ax,
