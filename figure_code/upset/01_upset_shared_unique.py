@@ -101,6 +101,9 @@ def main():
     print(f"{args.archaic}: union = {total:,} bp")
     print(table.to_string(index=False))
 
+    # larger text than upsetplot's default so the labels stay readable when the
+    # three panels are stacked into one figure
+    plt.rcParams.update({"font.size": 14})
     axes = UpSet(sizes, sort_by="cardinality", show_percentages=True).plot()
     # bp axes as 5 x 10^7 rather than an offset "1e8"
     axes["intersections"].yaxis.set_major_formatter(FuncFormatter(sci_label))
@@ -132,7 +135,7 @@ def main():
     for t in ax_i.texts:
         x, y = t.get_position()
         t.set_position((x, y + gap))
-        t.set(rotation=90, rotation_mode="anchor", ha="left", va="center", fontsize=9)
+        t.set(rotation=90, rotation_mode="anchor", ha="left", va="center", fontsize=12)
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
     out = FIGURE_DIR / f"upset_{args.archaic}.png"
     plt.savefig(out, dpi=300, bbox_inches="tight")
