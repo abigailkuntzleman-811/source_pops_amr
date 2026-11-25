@@ -123,6 +123,10 @@ def main():
         ax_i.set_ylim(0, top_bar * 1.07)
         lo, hi = ax_t.get_xlim()
         ax_t.set_xlim((top_total * 1.05, 0) if lo > hi else (0, top_total * 1.05))
+    elif args.archaic == "denisovan":
+        # extra headroom so the (much smaller) Denisovan bars read as lower at a
+        # glance; the tick labels still give the true sizes
+        ax_i.set_ylim(0, table["bp"].max() * 1.5)
     ax_i.set_ylim(0, ax_i.get_ylim()[1] * 1.15)
     gap = 0.01 * ax_i.get_ylim()[1]
     for t in ax_i.texts:
