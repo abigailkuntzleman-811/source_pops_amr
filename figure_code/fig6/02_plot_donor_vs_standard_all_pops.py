@@ -2,9 +2,12 @@
 """Figure S9: European admixture proportion against within-population IBD,
 single-donor model vs. standard model, one panel per admixed population.
 
-Same layout as plot_all_pops in Chapter_1.ipynb: each panel shows a least
-squares line with its 95% confidence band for the donor (purple) and standard
-(yellow) models. IBD is computed with sim_ibd.ibd_per_individual (pieces
+Same layout as plot_all_pops in Chapter_1.ipynb: each panel shows a line and
+95% confidence band for the donor (purple) and standard (yellow) models. A
+least squares line is fitted separately in each replicate; the plotted line is
+the mean of those 1,000 lines and the band its 95% confidence interval
+(mean +- t * SD / sqrt(replicates)), so the band uses the same per-replicate
+fits as the slope test below. IBD is computed with sim_ibd.ibd_per_individual (pieces
 joined before a 2 cM cutoff, in cM), replacing get_ibd_dict.
 
 Two tests of whether the slope differs between the models are reported:
@@ -37,7 +40,7 @@ import pandas as pd
 import statsmodels.api as sm
 import tskit
 from matplotlib.lines import Line2D
-from scipy.stats import ttest_ind
+from scipy.stats import t as t_dist, ttest_ind
 
 _root = next(p for p in Path(__file__).resolve().parents if (p / "config.py").exists())
 sys.path.insert(0, str(_root))
@@ -68,6 +71,17 @@ def fit(x, y):
     return xp, pred.predicted_mean, lo, hi, model
 
 
+def replicate_band(coefs, xmin, xmax):
+    """Mean of the per-replicate fitted lines and its 95% CI across replicates.
+    coefs: one (slope, intercept) row per replicate."""
+    coefs = np.asarray(coefs)
+    xp = np.linspace(xmin, xmax, 200)
+    lines = coefs[:, [1]] + coefs[:, [0]] * xp
+    mean = lines.mean(0)
+    half = t_dist.ppf(0.975, len(lines) - 1) * lines.std(0, ddof=1) / np.sqrt(len(lines))
+    return xp, mean, mean - half, mean + half, None
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reps", type=int, default=1000)
@@ -81,8 +95,10 @@ def main():
         if not saved.exists():
             sys.exit(f"Missing {saved}; run once without --replot first.")
         d = np.load(saved)
-        plot({pop: {m: fit(d[f"{pop}_{k}_x"], d[f"{pop}_{k}_y"]) for k, m in enumerate(MODELS)}
-              for pop in POPS})
+        if f"{POPS[0]}_0_coef" not in d.files:
+            sys.exit(f"{saved} is from before the per-replicate band; run once without --replot.")
+        plot({pop: {m: replicate_band(d[f"{pop}_{k}_coef"], d[f"{pop}_{k}_x"].min(), d[f"{pop}_{k}_x"].max())
+                    for k, m in enumerate(MODELS)} for pop in POPS})
         return
 
     # every model/population must have every replicate
@@ -97,6 +113,7 @@ def main():
     for pop in POPS:
         data = {m: {"x": [], "y": []} for m in MODELS}
         rep_slopes = {m: [] for m in MODELS}
+        rep_coefs = {m: [] for m in MODELS}
         for i in range(1, args.reps + 1):
             if i % 50 == 0 or i == 1:
                 print(f"{pop}: replicate {i}/{args.reps}", flush=True)
@@ -109,12 +126,15 @@ def main():
                 y = np.array([ibd[k] for k in props])
                 data[m]["x"] += list(x)
                 data[m]["y"] += list(y)
-                rep_slopes[m].append(np.polyfit(x, y, 1)[0])
+                coef = np.polyfit(x, y, 1)  # slope, intercept
+                rep_coefs[m].append(coef)
+                rep_slopes[m].append(coef[0])
 
         fits = {m: fit(np.array(d["x"]), np.array(d["y"])) for m, d in data.items()}
         for k, m in enumerate(MODELS):
             keep[f"{pop}_{k}_x"] = np.array(data[m]["x"])
             keep[f"{pop}_{k}_y"] = np.array(data[m]["y"])
+            keep[f"{pop}_{k}_coef"] = np.array(rep_coefs[m])
 
         # pooled interaction test, as in the notebook
         df = pd.concat([pd.DataFrame({"IBD": data[m]["y"], "Prop": data[m]["x"],
@@ -128,7 +148,9 @@ def main():
         diff = np.array(rep_slopes["Donor"]) - np.array(rep_slopes["Standard"])
         paired_p = ttest_ind(rep_slopes["Donor"], rep_slopes["Standard"], equal_var=False).pvalue if args.reps > 1 else np.nan
 
-        results[pop] = fits
+        # the figure shows the per-replicate band; the pooled fits stay in the table
+        results[pop] = {m: replicate_band(rep_coefs[m], min(data[m]["x"]), max(data[m]["x"]))
+                        for m in MODELS}
         row = {"pop": pop}
         for m in MODELS:
             row[f"{m.lower()}_pooled_slope"] = fits[m][4].params[1]

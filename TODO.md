@@ -24,6 +24,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 ## 2. Statistics
 
 - [x] S4 and S5 statistics redone and in the captions (S4: bootstrap over individuals; S5: one value per replicate, Wilcoxon signed-rank vs IBS from the same replicate; both Holm-corrected; `figS4_ibd_boxplots/02_stats.py`, `fig6/04_sim_ibd_stats.py`)
+- [ ] S9: rerun with the new band (mean of the 1,000 per-replicate lines +- 95% CI across replicates; previously the CI of one regression on all samples pooled) and re-upload to Overleaf; caption: band = 95% CI across 1,000 replicates; test compares per-replicate slopes (Welch); call the differences differences in slope (cM per 50 Mb per unit EUR proportion), not "inflation of IBD"; PEL donor slope is flat (0.09)
 - [ ] S9 caption/Results: report the replicate-paired p for the slope difference (not the pooled interaction p), and the slopes themselves (e.g. PUR donor 7.93 vs standard 2.99 cM; with 1000 replicates any real difference gives a tiny p)
 
 ## 3. New analyses and additions
