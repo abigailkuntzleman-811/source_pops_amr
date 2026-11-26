@@ -29,9 +29,10 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 
 ## 3. New analyses and additions
 
-- [ ] Reviewer request: shared vs unique archaic ancestry on European vs Indigenous tracts. Run and done; supplementary table added (needs its caption; keep `\clearpage` before it), still to do: Methods text and the response to the reviewer. All archaic only (joint-caller calls have no Neanderthal/Denisovan label). Of archaic sequence: ~20% shared between backgrounds vs ~50% if ancestry did not matter (p < 0.001 in all four populations); EUR-only 45-49% vs AMR-only 30-36%; results in `archaic_by_background_<POP>.csv`. Note the noisy local ancestry pushes toward the null, so the real effect is likely larger
+- [x] Reviewer request: shared vs unique archaic ancestry on European vs Indigenous tracts: supplementary Table S1 added with caption (archaic Mb now from the same 100 draws as the percentages; percentages unchanged). All archaic only (joint-caller calls have no Neanderthal/Denisovan label)
+- [ ] Discuss Table S1 in the Results text and write the response to the reviewer (shared ~18-21% vs ~49-53% expected under the shuffled null, all p < 0.001; European-only largest in every population; noisy local ancestry pushes toward the null)
 - [x] Add the UpSet plot to the paper (combined A Neanderthal, B Denisovan, C all; `upset_combined.png`)
-- [ ] Add the UpSet analysis to the methods (HMMix calls, mean_prob >= 0.8; each population downsampled to 97 individuals, seed 42; all 15 intersections as % of the union; "all" includes segments not assigned to Neanderthal or Denisovan); caption: A and C share axis ranges, B has its own
+- [ ] Discuss the UpSet figure (S3) in the Results text, and add the UpSet analysis to the methods (HMMix calls, mean_prob >= 0.8; each population downsampled to 97 individuals, seed 42; all 15 intersections as % of the union; "all" includes segments not assigned to Neanderthal or Denisovan); caption: A and C share axis ranges, B has its own
 - [ ] Supplementary table of masked pileup regions (`hapIBD_calls/04_masked_regions_table.py` writes CSV and LaTeX)
 
 ## 4. Results and interpretation (after figures are final)
