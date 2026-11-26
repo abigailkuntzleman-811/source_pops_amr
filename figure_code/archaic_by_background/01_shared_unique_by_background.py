@@ -156,7 +156,13 @@ def main() -> None:
     def pick(n, a):
         return rng.hypergeometric(a, n - a, k) > 0
 
-    observed = np.array([percentages(width, pick(nE, aE), pick(nA, aA)) for _ in range(args.reps)])
+    # each draw gives the percentages and the archaic bp they are percentages of
+    observed, archaic_bp = [], []
+    for _ in range(args.reps):
+        eur_has, amr_has = pick(nE, aE), pick(nA, aA)
+        observed.append(percentages(width, eur_has, amr_has))
+        archaic_bp.append(width[eur_has | amr_has].sum())
+    observed = np.array(observed)
 
     # Shuffled labels: pool the EUR and AMR haplotypes, deal k to "EUR", then k
     # of the rest to "AMR".
@@ -173,7 +179,7 @@ def main() -> None:
         "pop": args.pop, "k": k, "haplotypes": n_haps,
         "usable_Mb": width.sum() / 1e6,
         "usable_pct_of_genome_with_both": 100 * width.sum() / called_bp if called_bp else np.nan,
-        "archaic_Mb_mean": np.mean([width[pick(nE, aE) | pick(nA, aA)].sum() for _ in range(10)]) / 1e6,
+        "archaic_Mb_mean": np.mean(archaic_bp) / 1e6,   # from the same draws as the percentages
         "shared_pct": obs[0], "eur_only_pct": obs[1], "amr_only_pct": obs[2],
         "null_shared_pct": np.nanmean(null[:, 0]),
         "null_eur_only_pct": np.nanmean(null[:, 1]), "null_amr_only_pct": np.nanmean(null[:, 2]),
