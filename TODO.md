@@ -33,7 +33,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [ ] Discuss Table S1 in the Results text and write the response to the reviewer (shared ~18-21% vs ~49-53% expected under the shuffled null, all p < 0.001; European-only largest in every population; noisy local ancestry pushes toward the null)
 - [x] Add the UpSet plot to the paper (combined A Neanderthal, B Denisovan, C all; `upset_combined.png`)
 - [ ] Discuss the UpSet figure (S3) in the Results text, and add the UpSet analysis to the methods (HMMix calls, mean_prob >= 0.8; each population downsampled to 97 individuals, seed 42; all 15 intersections as % of the union; "all" includes segments not assigned to Neanderthal or Denisovan); caption: A and C share axis ranges, B has its own
-- [ ] Supplementary table of masked pileup regions (`hapIBD_calls/04_masked_regions_table.py` writes CSV and LaTeX)
+- [x] Supplementary table of masked pileup regions (12 regions, 30.8 Mb; `hapIBD_calls/04_masked_regions_table.py` writes CSV and LaTeX)
 
 ## 4. Results and interpretation (after figures are final)
 
