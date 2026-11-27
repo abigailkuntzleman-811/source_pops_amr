@@ -62,7 +62,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [x] Methods: KING was run with `--unrelated --degree 3` (KING 2.3.2, LD-pruned SNPs from the hap-ibd input), so the unrelated set has no relatives up to **third** degree; the text says "no first or second degree relatives"
 - [ ] Simulation methods: say Fig 6 / S9 use total IBD each haploid sample shares with the other 99 over 50 Mb (not averaged); real-data IBD_bar_i is now defined per individual in the IBD Methods
 - [ ] Simulation methods: IBD from tskit with touching pieces joined into tracts of at least 2 cM, shared ancestors within 500 generations; admixture proportions from merged (non-overlapping) tracts
-- [ ] Clarify where the whole set vs the KING unrelated set is used, with sample sizes: Fig 2 and Table 1 use everyone with LAI calls (CLM 132, MXL 97, PEL 89, PUR 139); IBD analyses use KING unrelated individuals (Fig 4/S6/S8, with LAI: CLM 94, MXL 62, PEL 52, PUR 104)
+- [x] Clarify where the whole set vs the KING unrelated set is used, with sample sizes: Fig 2 and Table 1 use everyone with LAI calls (CLM 132, MXL 97, PEL 89, PUR 139); IBD analyses use KING unrelated individuals (Fig 4/S6/S8, with LAI: CLM 94, MXL 62, PEL 52, PUR 104)
 - [x] Table 1: European admixture comes from the joint-caller LAI calls while shared Neanderthal ancestry comes from hmmix; resolve or state clearly
 - [x] Methods: resolve the note to Jazeps on PEL counts (89 admixed PEL = 122 total - 33 used as the Indigenous American reference panel)
 - [ ] Replicate counts in captions: S9 done; S3 says 100 (now 1000); check Fig 6; S5 says 1000 (correct)
