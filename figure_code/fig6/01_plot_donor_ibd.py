@@ -4,8 +4,9 @@ under the standard model and models with one, two or six European donor
 pulses. Built up one model at a time (one PNG per step), as in the
 progressive version in Chapter_1.ipynb.
 
-Each line is a least squares fit over all individuals in all replicates, with
-its 95% confidence band. IBD is computed with sim_ibd.ibd_per_individual
+A least squares line is fitted separately in each replicate; each plotted line
+is the mean of those per-replicate lines and its band the 95% confidence
+interval across replicates (mean +- t * SD / sqrt(replicates)), as in Figure S10. IBD is computed with sim_ibd.ibd_per_individual
 (pieces joined before a 2 cM cutoff, in cM); see sim_ibd.py.
 
 Usage:
@@ -30,6 +31,7 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 import tskit
+from scipy.stats import t as t_dist
 
 _root = next(p for p in Path(__file__).resolve().parents if (p / "config.py").exists())
 sys.path.insert(0, str(_root))
@@ -53,6 +55,17 @@ def fit(x, y):
     return xp, pred.predicted_mean, lo, hi, model
 
 
+def replicate_band(coefs, xmin, xmax):
+    """Mean of the per-replicate fitted lines and its 95% CI across replicates.
+    coefs: one (slope, intercept) row per replicate."""
+    coefs = np.asarray(coefs)
+    xp = np.linspace(xmin, xmax, 200)
+    lines = coefs[:, [1]] + coefs[:, [0]] * xp
+    mean = lines.mean(0)
+    half = t_dist.ppf(0.975, len(lines) - 1) * lines.std(0, ddof=1) / np.sqrt(len(lines))
+    return xp, mean, mean - half, mean + half, None
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pop", default="MXL")
@@ -72,8 +85,10 @@ def main():
         if not saved.exists():
             sys.exit(f"Missing {saved}; run once without --replot first.")
         d = np.load(saved)
-        data = {m: {"x": d[f"{k}_x"], "y": d[f"{k}_y"]} for k, m in enumerate(MODELS)}
-        plot(args, {m: fit(np.asarray(v["x"]), np.asarray(v["y"])) for m, v in data.items()})
+        if "0_coef" not in d.files:
+            sys.exit(f"{saved} is from before the per-replicate band; run once without --replot.")
+        plot(args, {m: replicate_band(d[f"{k}_coef"], d[f"{k}_x"].min(), d[f"{k}_x"].max())
+                    for k, m in enumerate(MODELS)})
         return
 
     # Every model must have every replicate, or the models aren't comparable.
@@ -92,6 +107,7 @@ def main():
 
     data = {m: {"x": [], "y": []} for m in MODELS}
     slopes = {m: [] for m in MODELS}
+    coefs = {m: [] for m in MODELS}
     for i in range(1, args.reps + 1):
         print(f"replicate {i}/{args.reps}", flush=True)
         for model, (folder, tracts) in MODELS.items():
@@ -103,23 +119,29 @@ def main():
             y = np.array([ibd[k] for k in props])
             data[model]["x"] += list(x)
             data[model]["y"] += list(y)
-            slopes[model].append(np.polyfit(x, y, 1)[0])
+            coef = np.polyfit(x, y, 1)  # slope, intercept
+            coefs[model].append(coef)
+            slopes[model].append(coef[0])
 
     fits = {m: fit(np.array(d["x"]), np.array(d["y"])) for m, d in data.items()}
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(saved, **{f"{k}_{c}": np.array(data[m][c]) for k, m in enumerate(MODELS) for c in "xy"})
+    keep = {f"{k}_{c}": np.array(data[m][c]) for k, m in enumerate(MODELS) for c in "xy"}
+    keep.update({f"{k}_coef": np.array(coefs[m]) for k, m in enumerate(MODELS)})
+    np.savez_compressed(saved, **keep)
 
     # slopes: pooled fit, and per-replicate mean +/- SD (the honest uncertainty)
     rows = [{"model": m, "pooled_slope": fits[m][4].params[1],
              "pooled_R2": fits[m][4].rsquared,
              "rep_slope_mean": np.mean(slopes[m]),
              "rep_slope_sd": np.std(slopes[m], ddof=1),
+             "rep_slope_se": np.std(slopes[m], ddof=1) / np.sqrt(len(slopes[m])),
              "mean_ibd_cM": np.mean(data[m]["y"])} for m in MODELS]
     table = pd.DataFrame(rows)
     print("\n" + table.to_string(index=False))
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
     table.to_csv(TABLE_DIR / f"{args.pop}_IBD_progressive_slopes.csv", index=False)
-    plot(args, fits)
+    # the figure shows the per-replicate band; the pooled fits stay in the table
+    plot(args, {m: replicate_band(coefs[m], min(data[m]["x"]), max(data[m]["x"])) for m in MODELS})
 
 
 def plot(args, fits):
