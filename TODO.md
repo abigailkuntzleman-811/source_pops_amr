@@ -1,5 +1,7 @@
 # TODO
 
+Supplementary numbering changed when the UpSet plot was added. Items below use the OLD numbers: S3 -> S4 (simulated recovered), S4 -> S5 (real IBD boxplots), S5 -> S6 (simulated IBD boxplots), S6 -> S7 (Indigenous American proportion vs IBD), S7 -> S8 (ancestry-aware ratio), S8 -> S9 (African proportion vs IBD), S9 -> S10 (simulated slopes). New S3 is the UpSet plot.
+
 Grouped by kind of work. Figures come first because the text depends on them.
 Figure numbers follow the current manuscript: S4 real IBD boxplots, S5 simulated
 IBD boxplots, S6 Indigenous ancestry vs IBD, S7 ancestry-aware IBD ratios,
@@ -72,7 +74,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 
 ## 6. Checks
 
-- [ ] Table 1: new African proportions (CLM 0.15, PUR 0.20) look high next to published estimates; check the joint caller's reference panels
+- [x] Table 1: new African proportions (CLM 0.15, PUR 0.20): checked; reference panels are all IBS and all YRI, values accepted
 - [x] Masking used the maps in `data/raw/genetic_maps`: checked, same as hap-ibd's maps (chr1/chr10 median difference < 0.001 cM); regions before a map's first position (chr14, 15, 22) are extrapolated by hap-ibd
 
 ## 7. Housekeeping
