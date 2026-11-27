@@ -67,7 +67,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [x] Methods: resolve the note to Jazeps on PEL counts (89 admixed PEL = 122 total - 33 used as the Indigenous American reference panel)
 - [x] Replicate counts in captions: S9 done; S3 says 100 (now 1000); check Fig 6; S5 says 1000 (correct)
 - [x] S4 and S5 captions: boxes, whiskers, haplotype pairs, zero pairs, tables
-- [ ] S10 (formerly S9) caption: add that the y axis is each haploid genome's total IBD with the other 99, over a 50 Mb region (label now just cM); Fig 6 caption done. Re-upload Fig 6 (new across-replicate band, job running) and S10 after --replot for the new label
+- [x] S10 (formerly S9) caption: add that the y axis is each haploid genome's total IBD with the other 99, over a 50 Mb region (label now just cM); Fig 6 caption done. Re-upload Fig 6 (new across-replicate band, job running) and S10 after --replot for the new label
 - [ ] Fix cross-references: `Figure 3\ref{archaic_share_ibd}` prints "Figure 3 3" (Methods and Results); Discussion `Figure 3\label{archaic_share_ibd}` (\label should be \ref); Discussion sentence on EUR admixture vs IBD cites `\ref{eur_amr_recovered}` (Fig 2) instead of Fig 4
 
 ## 6. Checks
