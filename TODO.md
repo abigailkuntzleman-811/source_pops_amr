@@ -1,6 +1,6 @@
 # TODO
 
-Supplementary numbering changed when the UpSet plot was added. Items below use the OLD numbers: S3 -> S4 (simulated recovered), S4 -> S5 (real IBD boxplots), S5 -> S6 (simulated IBD boxplots), S6 -> S7 (Indigenous American proportion vs IBD), S7 -> S8 (ancestry-aware ratio), S8 -> S9 (African proportion vs IBD), S9 -> S10 (simulated slopes). New S3 is the UpSet plot.
+Supplementary numbering changed when the UpSet plot was added. Items below use the OLD numbers: S3 -> S4 (simulated recovered), S4 -> S5 (real IBD boxplots), S5 -> S6 (simulated IBD boxplots), S6 -> S7 (Indigenous American proportion vs IBD), S7 -> S9 (ancestry-aware ratio), S8 -> S8 (African proportion vs IBD), S9 -> S10 (simulated slopes). New S3 is the UpSet plot.
 
 Grouped by kind of work. Figures come first because the text depends on them.
 Figure numbers follow the current manuscript: S4 real IBD boxplots, S5 simulated
