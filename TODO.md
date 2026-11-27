@@ -30,9 +30,9 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 ## 3. New analyses and additions
 
 - [x] Reviewer request: shared vs unique archaic ancestry on European vs Indigenous tracts: supplementary Table S1 added with caption (archaic Mb now from the same 100 draws as the percentages; percentages unchanged). All archaic only (joint-caller calls have no Neanderthal/Denisovan label)
-- [ ] Discuss Table S1 in the Results text and write the response to the reviewer (shared ~18-21% vs ~49-53% expected under the shuffled null, all p < 0.001; European-only largest in every population; noisy local ancestry pushes toward the null)
+- [ ] Discuss Table S1 in the Results text and write the response to the reviewer (Methods done) (shared ~18-21% vs ~49-53% expected under the shuffled null, all p < 0.001; European-only largest in every population; noisy local ancestry pushes toward the null)
 - [x] Add the UpSet plot to the paper (combined A Neanderthal, B Denisovan, C all; `upset_combined.png`)
-- [ ] Discuss the UpSet figure (S3) in the Results text, and add the UpSet analysis to the methods (HMMix calls, mean_prob >= 0.8; each population downsampled to 97 individuals, seed 42; all 15 intersections as % of the union; "all" includes segments not assigned to Neanderthal or Denisovan); caption: A and C share axis ranges, B has its own
+- [ ] Discuss the UpSet figure (S3) in the Results text (Methods done)
 - [x] Supplementary table of masked pileup regions (12 regions, 30.8 Mb; `hapIBD_calls/04_masked_regions_table.py` writes CSV and LaTeX)
 
 ## 4. Results and interpretation (after figures are final)
@@ -63,7 +63,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [ ] Simulation methods: say Fig 6 / S9 use total IBD each haploid sample shares with the other 99 over 50 Mb (not averaged); real-data IBD_bar_i is now defined per individual in the IBD Methods
 - [ ] Simulation methods: IBD from tskit with touching pieces joined into tracts of at least 2 cM, shared ancestors within 500 generations; admixture proportions from merged (non-overlapping) tracts
 - [ ] Clarify where the whole set vs the KING unrelated set is used, with sample sizes: Fig 2 and Table 1 use everyone with LAI calls (CLM 132, MXL 97, PEL 89, PUR 139); IBD analyses use KING unrelated individuals (Fig 4/S6/S8, with LAI: CLM 94, MXL 62, PEL 52, PUR 104)
-- [ ] Table 1: European admixture comes from the joint-caller LAI calls while shared Neanderthal ancestry comes from hmmix; resolve or state clearly
+- [x] Table 1: European admixture comes from the joint-caller LAI calls while shared Neanderthal ancestry comes from hmmix; resolve or state clearly
 - [x] Methods: resolve the note to Jazeps on PEL counts (89 admixed PEL = 122 total - 33 used as the Indigenous American reference panel)
 - [ ] Replicate counts in captions: S9 done; S3 says 100 (now 1000); check Fig 6; S5 says 1000 (correct)
 - [x] S4 and S5 captions: boxes, whiskers, haplotype pairs, zero pairs, tables
