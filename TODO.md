@@ -65,9 +65,9 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [x] Clarify where the whole set vs the KING unrelated set is used, with sample sizes: Fig 2 and Table 1 use everyone with LAI calls (CLM 132, MXL 97, PEL 89, PUR 139); IBD analyses use KING unrelated individuals (Fig 4/S6/S8, with LAI: CLM 94, MXL 62, PEL 52, PUR 104)
 - [x] Table 1: European admixture comes from the joint-caller LAI calls while shared Neanderthal ancestry comes from hmmix; resolve or state clearly
 - [x] Methods: resolve the note to Jazeps on PEL counts (89 admixed PEL = 122 total - 33 used as the Indigenous American reference panel)
-- [ ] Replicate counts in captions: S9 done; S3 says 100 (now 1000); check Fig 6; S5 says 1000 (correct)
+- [x] Replicate counts in captions: S9 done; S3 says 100 (now 1000); check Fig 6; S5 says 1000 (correct)
 - [x] S4 and S5 captions: boxes, whiskers, haplotype pairs, zero pairs, tables
-- [ ] Fig 6 and S9 captions: y axis is total IBD each simulated haploid genome shares with the other 99 in its population, over a 50 Mb simulated region
+- [ ] S10 (formerly S9) caption: add that the y axis is each haploid genome's total IBD with the other 99, over a 50 Mb region (label now just cM); Fig 6 caption done. Re-upload Fig 6 (new across-replicate band, job running) and S10 after --replot for the new label
 - [ ] Fix cross-references: `Figure 3\ref{archaic_share_ibd}` prints "Figure 3 3" (Methods and Results); Discussion `Figure 3\label{archaic_share_ibd}` (\label should be \ref); Discussion sentence on EUR admixture vs IBD cites `\ref{eur_amr_recovered}` (Fig 2) instead of Fig 4
 
 ## 6. Checks
