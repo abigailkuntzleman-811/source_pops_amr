@@ -64,7 +64,7 @@ S8 African ancestry vs IBD, S9 simulated donor vs standard.
 - [ ] Simulation methods: IBD from tskit with touching pieces joined into tracts of at least 2 cM, shared ancestors within 500 generations; admixture proportions from merged (non-overlapping) tracts
 - [ ] Clarify where the whole set vs the KING unrelated set is used, with sample sizes: Fig 2 and Table 1 use everyone with LAI calls (CLM 132, MXL 97, PEL 89, PUR 139); IBD analyses use KING unrelated individuals (Fig 4/S6/S8, with LAI: CLM 94, MXL 62, PEL 52, PUR 104)
 - [ ] Table 1: European admixture comes from the joint-caller LAI calls while shared Neanderthal ancestry comes from hmmix; resolve or state clearly
-- [ ] Methods: resolve the note to Jazeps on PEL counts (89 admixed PEL = 122 total - 33 used as the Indigenous American reference panel)
+- [x] Methods: resolve the note to Jazeps on PEL counts (89 admixed PEL = 122 total - 33 used as the Indigenous American reference panel)
 - [ ] Replicate counts in captions: S9 done; S3 says 100 (now 1000); check Fig 6; S5 says 1000 (correct)
 - [x] S4 and S5 captions: boxes, whiskers, haplotype pairs, zero pairs, tables
 - [ ] Fig 6 and S9 captions: y axis is total IBD each simulated haploid genome shares with the other 99 in its population, over a 50 Mb simulated region
