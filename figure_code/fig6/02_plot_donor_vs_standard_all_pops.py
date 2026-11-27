@@ -192,7 +192,7 @@ def plot(results):
         ax.set_ylim(min(0, lowest - pad), highest + pad)
 
     fig.supxlabel("European admixture proportion", fontsize=16)
-    fig.supylabel("Total IBD shared with other haplotypes (cM, per 50 Mb)", fontsize=16)
+    fig.supylabel("Total IBD shared with other haplotypes (cM)", fontsize=16)
     handles = [Line2D([0], [0], color=MODELS[m][2], lw=2, label=m) for m in MODELS]
     # inside the upper-left panel, in its upper-left corner
     axes[0, 0].legend(handles=handles, loc="upper left", fontsize=14,
