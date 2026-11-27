@@ -9,8 +9,8 @@ Plotting code from Jazeps Medina-Tretmanis. It needs:
   - Jazeps's plotting module plot_haploid_smartpca.py, importable from this
     folder or on PYTHONPATH.
 
-TODO (Jazeps): add plot_haploid_smartpca.py and the steps that build the
-masked haploid input and run smartpca.
+The masking and smartpca steps that produce data.evec are not in this
+repository; see the SmartPCA section of the Methods.
 
 Usage:
     python figure_code/fig5/01_plot_pca.py
